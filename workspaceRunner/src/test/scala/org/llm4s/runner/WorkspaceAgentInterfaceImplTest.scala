@@ -1,10 +1,11 @@
 package org.llm4s.runner
 
+import org.llm4s.shared._
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.llm4s.shared._
-import java.nio.file.{ Files, Paths }
+
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
 
 class WorkspaceAgentInterfaceImplTest extends AnyFlatSpec with Matchers with org.scalatest.BeforeAndAfterAll {
 

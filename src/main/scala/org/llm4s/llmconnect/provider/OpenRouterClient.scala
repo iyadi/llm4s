@@ -3,12 +3,10 @@ package org.llm4s.llmconnect.provider
 import org.llm4s.llmconnect.LLMClient
 import org.llm4s.llmconnect.config.OpenAIConfig
 import org.llm4s.llmconnect.model._
-import org.llm4s.toolapi.{ ToolRegistry, ToolFunction }
-import upickle.default._
-import ujson._
+import org.llm4s.toolapi.ToolRegistry
 
-import java.net.http.{ HttpClient, HttpRequest, HttpResponse }
 import java.net.URI
+import java.net.http.{ HttpClient, HttpRequest, HttpResponse }
 
 class OpenRouterClient(config: OpenAIConfig) extends LLMClient {
   private val httpClient = HttpClient.newHttpClient()

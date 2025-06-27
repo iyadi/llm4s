@@ -3,7 +3,6 @@ package org.llm4s.mcp
 import scala.util.{Try, Success, Failure}
 import java.util.concurrent.atomic.AtomicLong
 import upickle.default._
-import requests._
 import org.slf4j.LoggerFactory
 
 // Transport type definitions

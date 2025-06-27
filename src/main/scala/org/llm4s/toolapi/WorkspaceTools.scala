@@ -3,7 +3,6 @@ package org.llm4s.toolapi
 import org.llm4s.shared._
 import org.llm4s.workspace.ContainerisedWorkspace
 import upickle.default._
-import ujson._
 
 import scala.util.{ Failure, Success, Try }
 
@@ -457,7 +456,7 @@ object WorkspaceTools {
           workspace.modifyFile(path, operations) match {
             case response if response.success =>
               Right(ujson.Obj("success" -> true))
-            case response =>
+            case _ =>
               Left(s"Failed to modify file")
           }
         } catch {

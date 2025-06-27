@@ -1,6 +1,5 @@
 package org.llm4s.llmconnect.provider
 
-import com.azure.ai.openai.{ OpenAIClient => AzureOpenAIClient }
 import com.azure.ai.openai.OpenAIClientBuilder
 import com.azure.ai.openai.models._
 import com.azure.core.credential.KeyCredential

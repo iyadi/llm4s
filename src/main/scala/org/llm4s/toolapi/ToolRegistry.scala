@@ -1,8 +1,5 @@
 package org.llm4s.toolapi
 
-import upickle.default._
-import ujson._
-
 /**
  * Request model for tool calls
  */

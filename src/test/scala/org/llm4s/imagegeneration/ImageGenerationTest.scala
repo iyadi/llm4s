@@ -2,8 +2,8 @@ package org.llm4s.imagegeneration
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import java.time.Instant
-import java.nio.file.{Files, Paths}
+
+import java.nio.file.Files
 import java.util.Base64
 
 /**
@@ -211,82 +211,101 @@ class ImageGenerationTest extends AnyFunSuite with Matchers {
 
   test("Mock client generates image successfully") {
     val result = mockClient.generateImage("A beautiful landscape")
-    
-    result shouldBe a[Right[_, _]]
-    val image = result.right.get
-    
-    image.prompt shouldBe "A beautiful landscape"
-    image.format shouldBe ImageFormat.PNG
-    image.size shouldBe ImageSize.Square512
-    image.data should not be empty
-  }
 
-  test("Mock client respects custom options") {
-    val options = ImageGenerationOptions(
-      size = ImageSize.Landscape768x512,
-      format = ImageFormat.JPEG,
-      seed = Some(42),
-      guidanceScale = 10.0,
-      negativePrompt = Some("blurry")
-    )
-    
-    val result = mockClient.generateImage("Test prompt", options)
-    
-    result shouldBe a[Right[_, _]]
-    val image = result.right.get
-    
-    image.size shouldBe ImageSize.Landscape768x512
-    image.format shouldBe ImageFormat.JPEG
-    image.seed shouldBe Some(42)
-  }
+    result match {
+      case Right(image) =>
+        image.prompt shouldBe "A beautiful landscape"
+        image.format shouldBe ImageFormat.PNG
+        image.size shouldBe ImageSize.Square512
+        image.data should not be empty
 
-  test("Mock client validates prompts") {
-    // Empty prompt
-    val result1 = mockClient.generateImage("")
-    result1 shouldBe a[Left[_, _]]
-    result1.left.get shouldBe a[ValidationError]
-    
-    // Inappropriate content
-    val result2 = mockClient.generateImage("inappropriate content")
-    result2 shouldBe a[Left[_, _]]
-    result2.left.get shouldBe a[InvalidPromptError]
-  }
-
-  test("Mock client generates multiple images") {
-    val result = mockClient.generateImages("Test prompt", 3)
-    
-    result shouldBe a[Right[_, _]]
-    val images = result.right.get
-    
-    images should have length 3
-    images.foreach { image =>
-      image.prompt shouldBe "Test prompt"
-      image.data should not be empty
+      case Left(error) =>
+        fail(s"Expected a successful image generation, but got error: $error")
     }
   }
 
-  test("Mock client validates image count") {
-    // Test negative/zero count
-    mockClient.generateImages("Test", -1) shouldBe a[Left[_, _]]
-    mockClient.generateImages("Test", 0) shouldBe a[Left[_, _]]
-    
-    // Test too many images
-    val result = mockClient.generateImages("Test", 15)
-    result shouldBe a[Left[_, _]]
-    result.left.get shouldBe a[InsufficientResourcesError]
+  test("Mock client respects custom options") {
+  val options = ImageGenerationOptions(
+    size = ImageSize.Landscape768x512,
+    format = ImageFormat.JPEG,
+    seed = Some(42),
+    guidanceScale = 10.0,
+    negativePrompt = Some("blurry")
+  )
+
+  val result: Either[ImageGenerationError, GeneratedImage] =
+    mockClient.generateImage("Test prompt", options)
+
+  result match {
+    case Right(image) =>
+      image.size shouldBe ImageSize.Landscape768x512
+      image.format shouldBe ImageFormat.JPEG
+      image.seed shouldBe Some(42)
+    case Left(error) =>
+      fail(s"Expected successful image generation, but got error: $error")
+  }
+}
+
+  test("Mock client validates prompts") {
+  // Empty prompt
+  val result1 = mockClient.generateImage("")
+  result1 match {
+    case Left(_: ValidationError) => succeed
+    case Left(other)                => fail(s"Expected ValidationError, got $other")
+    case Right(img)                 => fail(s"Expected error, but got image: $img")
   }
 
-  test("Mock client reports healthy status") {
-    val result = mockClient.health()
-    
-    result shouldBe a[Right[_, _]]
-    val status = result.right.get
-    
-    status.status shouldBe HealthStatus.Healthy
-    status.message shouldBe "Mock service is always healthy"
-    status.queueLength shouldBe Some(0)
-    status.averageGenerationTime shouldBe Some(100)
+  // Inappropriate content
+  val result2 = mockClient.generateImage("inappropriate content")
+  result2 match {
+    case Left(_: InvalidPromptError) => succeed
+    case Left(other)                   => fail(s"Expected InvalidPromptError, got $other")
+    case Right(img)                    => fail(s"Expected error, but got image: $img")
   }
+}
+
+  test("Mock client generates multiple images") {
+  val result = mockClient.generateImages("Test prompt", 3)
+
+  result match {
+    case Right(images) =>
+      images should have length 3
+      images.foreach { image =>
+        image.prompt shouldBe "Test prompt"
+        image.data should not be empty
+      }
+
+    case Left(error) =>
+      fail(s"Expected Right with images, but got Left($error)")
+  }
+}
+
+  test("Mock client validates image count") {
+  // Test negative/zero count
+  mockClient.generateImages("Test", -1) should matchPattern { case Left(_: ValidationError) => }
+  mockClient.generateImages("Test", 0)  should matchPattern { case Left(_: ValidationError) => }
+
+  // Test too many images
+  mockClient.generateImages("Test", 15) match {
+    case Left(_: InsufficientResourcesError) => succeed
+    case Left(other) => fail(s"Expected InsufficientResourcesError, but got $other")
+    case Right(_) => fail("Expected failure, but got success")
+  }
+}
+
+  test("Mock client reports healthy status") {
+  val result = mockClient.health()
+
+  result match {
+    case Right(status) =>
+      status.status shouldBe HealthStatus.Healthy
+      status.message shouldBe "Mock service is always healthy"
+      status.queueLength shouldBe Some(0)
+      status.averageGenerationTime shouldBe Some(100)
+    case Left(error) =>
+      fail(s"Expected healthy status, but got error: $error")
+  }
+}
 
   // ===== ERROR HANDLING TESTS =====
 
@@ -306,13 +325,15 @@ class ImageGenerationTest extends AnyFunSuite with Matchers {
   // ===== INTEGRATION TESTS =====
 
   test("generateWithStableDiffusion handles connection errors gracefully") {
-    // This will fail because no real SD server is running at this port
-    val result = ImageGeneration.generateWithStableDiffusion(
-      "test prompt",
-      baseUrl = "http://localhost:99999"
-    )
-    
-    result shouldBe a[Left[_, _]]
-    result.left.get shouldBe a[ImageGenerationError]
+  // This will fail because no real SD server is running at this port
+  val result = ImageGeneration.generateWithStableDiffusion(
+    "test prompt",
+    baseUrl = "http://localhost:99999"
+  )
+
+  result match {
+    case Left(_) => succeed
+    case Right(value) => fail(s"Expected failure but got: $value")
   }
+}
 } 

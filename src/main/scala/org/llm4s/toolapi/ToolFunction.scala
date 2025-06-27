@@ -1,7 +1,6 @@
 package org.llm4s.toolapi
 
 import upickle.default._
-import ujson._
 
 /**
  * Core model for tool function definitions

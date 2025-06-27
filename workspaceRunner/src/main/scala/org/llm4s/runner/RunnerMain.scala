@@ -1,6 +1,5 @@
 package org.llm4s.runner
 
-import cask.model.Response
 import org.llm4s.shared._
 import org.slf4j.LoggerFactory
 import upickle.default._
@@ -194,7 +193,7 @@ object RunnerMain extends cask.MainRoutes {
         sendMessage(channel, CommandStartedMessage(cmd.commandId, cmd.command))
         
         // Execute command with streaming output
-        val response = executeCommandWithStreaming(channel, cmd)
+        val response = executeCommandWithStreaming(cmd)
         
         // Send final response
         sendMessage(channel, ResponseMessage(response))
@@ -226,7 +225,7 @@ object RunnerMain extends cask.MainRoutes {
     }(using ec)
   }
 
-  private def executeCommandWithStreaming(channel: cask.WsChannelActor, cmd: ExecuteCommandCommand): ExecuteCommandResponse = {
+  private def executeCommandWithStreaming(cmd: ExecuteCommandCommand): ExecuteCommandResponse = {
     // For now, use the existing implementation but we can enhance this later to provide real streaming
     workspaceInterface.executeCommand(
       cmd.command,

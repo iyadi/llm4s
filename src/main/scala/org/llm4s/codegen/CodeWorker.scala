@@ -3,13 +3,9 @@ package org.llm4s.codegen
 import org.llm4s.agent.{ Agent, AgentState, AgentStatus }
 import org.llm4s.llmconnect.LLM
 import org.llm4s.llmconnect.model._
-import org.llm4s.shared._
 import org.llm4s.toolapi._
 import org.llm4s.workspace.ContainerisedWorkspace
 import org.slf4j.LoggerFactory
-import upickle.default._
-
-import scala.util.{ Failure, Success, Try }
 
 /**
  * A worker for code generation and manipulation tasks.

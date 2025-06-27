@@ -37,7 +37,6 @@ class ContainerisedWorkspace(val workspaceDir: String) extends WorkspaceAgentInt
 
   // Constants
   private val HeartbeatIntervalSeconds = 5
-  private val HeartbeatTimeoutMs = 15000
   private val MaxStartupAttempts = 10
   private val ConnectionTimeoutMs = 10000L
 

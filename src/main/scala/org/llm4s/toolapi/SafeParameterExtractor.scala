@@ -1,6 +1,5 @@
 package org.llm4s.toolapi
 
-import ujson.Value
 import scala.annotation.tailrec
 
 /**
@@ -51,7 +50,6 @@ case class SafeParameterExtractor(params: ujson.Value) {
 
       // Get the value at the path
       navigatePath(params, pathParts.toList).flatMap { value =>
-        val finalPart = pathParts.last
         extractor(value) match {
           case Some(result) => Right(result)
           case None         => Left(s"Value at '$path' is not of expected type '$expectedType'")

@@ -66,7 +66,7 @@ class Agent(client: LLMClient) {
                 // No tool calls - agent is ready to answer
                 Right(updatedState.withStatus(AgentStatus.Complete))
 
-              case toolCalls =>
+              case _ =>
                 // Don't process tools yet, just mark as waiting
                 logger.debug("Tool calls identified, setting state to waiting for tools")
                 Right(updatedState.withStatus(AgentStatus.WaitingForTools))

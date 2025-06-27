@@ -1,14 +1,14 @@
 package org.llm4s.workspace
 
 import org.llm4s.shared._
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.BeforeAndAfterAll
 
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.Files
 import scala.concurrent.duration._
-import scala.util.{Success, Try}
+import scala.util.Try
 
 /**
  * Test suite for WebSocket-based ContainerisedWorkspace.
@@ -123,8 +123,8 @@ class ContainerisedWorkspaceTest extends AnyFunSuite with Matchers with BeforeAn
     // Test that we can do file operations while commands are potentially running
     // This demonstrates that WebSocket doesn't have the same threading issues as HTTP
     
-    import scala.concurrent.Future
     import scala.concurrent.ExecutionContext.Implicits.global
+    import scala.concurrent.Future
     
     val futures = for (i <- 1 to 3) yield {
       Future {
@@ -160,11 +160,7 @@ class ContainerisedWorkspaceTest extends AnyFunSuite with Matchers with BeforeAn
 
   test("WebSocket workspace handles command streaming events") {
     assume(isDockerAvailable, "Docker not available - skipping WebSocket tests")
-    
-    var streamingEvents: List[String] = List.empty
-    var commandStarted = false
-    var commandCompleted = false
-    
+
     // Note: Current implementation doesn't expose streaming events directly through the interface
     // but the infrastructure is there. This test verifies basic command execution works.
     

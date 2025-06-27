@@ -3,6 +3,27 @@ import sbt.Keys.{libraryDependencies, *}
 
 val scala213 = "2.13.16"
 val scala3   = "3.7.1"
+val scala3CompilerOptions = Seq(
+  "-explain",
+  "-explain-types",
+  "-Xfatal-warnings",
+  "-source:3.3",
+  "-Wsafe-init",
+  "-deprecation",
+  "-Wunused:all"
+)
+val scala2CompilerOptions = Seq(
+  "-Xfatal-warnings",
+  "-feature",
+  "-unchecked",
+  "-deprecation",
+  "-Wunused:imports",
+  "-Wunused:privates",
+  "-Wunused:locals",
+  "-Wunused:patvars",
+  "-Wunused:params",
+  "-Wunused:linted"
+)
 
 inThisBuild(
   List(
@@ -52,19 +73,9 @@ inThisBuild(
 def scalacOptionsForVersion(scalaVersion: String): Seq[String] =
   CrossVersion.partialVersion(scalaVersion) match {
     case Some((2, 13)) =>
-      Seq(
-        // "-Xfatal-warnings",
-        "-deprecation",
-        "-feature",
-        "-unchecked",
-        "-Wunused:imports"
-      )
+      scala2CompilerOptions
     case Some((3, _)) =>
-      Seq(
-        "-explain",
-        "-Xfatal-warnings",
-        "-source:3.3"
-      )
+      scala3CompilerOptions
     case _ => Seq.empty
   }
 
@@ -188,13 +199,7 @@ lazy val crossTestScala3 = (project in file("crosstest/scala3"))
     resolvers += Resolver.mavenLocal,
     resolvers += Resolver.defaultLocal,
     libraryDependencies ++= crossLibDependencies.value,
-    scalacOptions ++= Seq(
-      "-language:strictEquality",
-      "-Wsafe-init",
-      "-deprecation",
-      "-Wunused:imports",
-      "-Xfatal-warnings"
-    )
+    scalacOptions ++= scala3CompilerOptions
   )
 
 addCommandAlias("buildAll", ";clean;+compile;+test")

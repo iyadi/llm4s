@@ -1,7 +1,8 @@
 package org.llm4s.trace
 
 import org.llm4s.agent.AgentState
-import org.llm4s.llmconnect.model.{AssistantMessage, ToolMessage, UserMessage, SystemMessage}
+import org.llm4s.llmconnect.model.{ AssistantMessage, ToolMessage }
+
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -26,11 +27,11 @@ class PrintTracing extends Tracing {
     println(s"$color$BOLD$separator$RESET")
   }
   
-  private def printSubHeader(title: String, color: String = BLUE): Unit = {
+  private def printSubHeader(title: String, color: String ): Unit = {
     println(s"$color$BOLD--- $title ---$RESET")
   }
   
-  private def formatJson(json: String, maxLength: Int = 200): String = {
+  private def formatJson(json: String, maxLength: Int): String = {
     if (json.length > maxLength) {
       json.take(maxLength) + "..."
     } else {

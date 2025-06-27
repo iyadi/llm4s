@@ -1,7 +1,5 @@
 package org.llm4s.toolapi
 
-import ujson._
-
 /**
  * Base trait for all schema definitions
  */

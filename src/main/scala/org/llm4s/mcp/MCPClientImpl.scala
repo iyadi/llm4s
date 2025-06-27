@@ -1,11 +1,11 @@
 package org.llm4s.mcp
 
 import org.llm4s.toolapi._
-import upickle.default.{read => upickleRead, write => upickleWrite}
-import ujson.{read => ujsonRead, write => ujsonWrite, Value}
-import scala.util.{Try, Success, Failure}
-import java.util.concurrent.atomic.AtomicLong
 import org.slf4j.LoggerFactory
+import ujson.{ Value, read => ujsonRead }
+
+import java.util.concurrent.atomic.AtomicLong
+import scala.util.{ Failure, Success, Try }
 
 /**
  * Implementation of MCP client that connects to and communicates with MCP servers.
@@ -43,7 +43,6 @@ class MCPClientImpl(config: MCPServerConfig) extends MCPClient {
         response.result match {
           case Some(result) =>
             Try {
-              val serverCapabilities = result("capabilities")
               val protocolVersion = result("protocolVersion").str
               // Validate protocol version compatibility
               if (protocolVersion.startsWith("2024-") || protocolVersion.startsWith("2025-")) {

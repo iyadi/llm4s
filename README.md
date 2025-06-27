@@ -80,10 +80,9 @@ To get started with the LLM4S project, check out this teaser talk presented by *
 ### Building the Project
 
 ```bash
-# For the default Scala version (3.3.3)
 sbt compile
 
-# For all supported Scala versions (2.13 and 3.3)
+# For all supported Scala versions (2.13 and 3)
 sbt +compile
 
 # Build and test all versions
@@ -122,7 +121,7 @@ This will allow you to run the non-containerized examples.
 ### Running the Examples
 
 ```bash
-# Using Scala 3.3.3
+# Using Scala 3
 sbt "samples/runMain org.llm4s.samples.basic.BasicLLMCallingExample"
 ```
 

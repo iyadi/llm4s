@@ -1,17 +1,12 @@
 package org.llm4s.llmconnect.provider
-import scala.jdk.CollectionConverters._
 import com.anthropic.client.okhttp.AnthropicOkHttpClient
-import com.anthropic.core.{ JsonObject, JsonString, JsonValue, ObjectMappers }
+import com.anthropic.core.{ JsonObject, ObjectMappers }
 import com.anthropic.models.messages
-import com.anthropic.models.messages.Message
-import com.anthropic.models.messages.MessageCreateParams
+import com.anthropic.models.messages.{ Message, MessageCreateParams, Tool }
 import org.llm4s.llmconnect.LLMClient
 import org.llm4s.llmconnect.config.AnthropicConfig
 import org.llm4s.llmconnect.model._
 import org.llm4s.toolapi.{ ObjectSchema, ToolFunction }
-import com.anthropic.models.messages.Tool
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.JsonDeserializer
 
 import scala.jdk.CollectionConverters._
 

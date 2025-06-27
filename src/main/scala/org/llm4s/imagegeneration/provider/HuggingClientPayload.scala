@@ -9,7 +9,6 @@ case class HuggingClientPayload(
                                )
 
 object HuggingClientPayload {
-  import Parameters._
   def apply(prompt: String, options: ImageGenerationOptions): HuggingClientPayload = {
     HuggingClientPayload(
       inputs = prompt,

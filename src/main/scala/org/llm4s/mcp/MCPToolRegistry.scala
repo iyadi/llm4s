@@ -1,11 +1,10 @@
 package org.llm4s.mcp
 
 import org.llm4s.toolapi._
-import upickle.default._
-import ujson._
-import scala.concurrent.duration._
-import scala.util.{Try, Success, Failure}
 import org.slf4j.LoggerFactory
+
+import scala.concurrent.duration._
+import scala.util.{ Failure, Success, Try }
 
 // MCP-aware tool registry that integrates with the existing tool API
 class MCPToolRegistry(

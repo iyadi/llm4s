@@ -1,14 +1,13 @@
 package org.llm4s.trace
 
 import org.llm4s.agent.AgentState
-import org.llm4s.llmconnect.model.{AssistantMessage, ToolMessage, ToolCall, Message, UserMessage, SystemMessage, Conversation}
-import org.llm4s.toolapi.ToolRegistry
+import org.llm4s.llmconnect.model.{ AssistantMessage, SystemMessage, ToolMessage, UserMessage }
 import org.slf4j.LoggerFactory
+
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.UUID
-import scala.util.{Try, Failure, Success}
-import upickle.default._
+import scala.util.{ Failure, Success, Try }
 
 class LangfuseTracing(
   langfuseUrl: String = sys.env.getOrElse("LANGFUSE_URL", "https://cloud.langfuse.com/api/public/ingestion"),

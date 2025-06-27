@@ -1,17 +1,17 @@
 package org.llm4s.runner
 
 import org.llm4s.shared._
-import java.io.{ File, FileWriter, BufferedWriter, PrintWriter }
-import java.nio.file.{ Files, Path, Paths, StandardOpenOption }
+
+import java.io.{ BufferedWriter, FileWriter, PrintWriter }
 import java.nio.charset.StandardCharsets
+import java.nio.file.{ Files, Path, Paths, StandardOpenOption }
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import java.util.regex.Pattern
 import scala.io.Source
-import scala.util.{ Try, Success, Failure, Using }
 import scala.jdk.CollectionConverters._
 import scala.sys.process._
-import java.util.regex.{ Pattern, Matcher }
-import java.util.concurrent.TimeUnit
+import scala.util.{ Failure, Success, Using }
 
 /**
  * Implementation of WorkspaceAgentInterface that operates on a local filesystem workspace.

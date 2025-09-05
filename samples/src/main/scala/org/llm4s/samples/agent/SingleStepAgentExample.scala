@@ -16,18 +16,18 @@ object SingleStepAgentExample {
       reader <- LLMConfig()
       client <- LLMConnect.getClient(reader)
       toolRegistry = new ToolRegistry(Seq(WeatherTool.tool))
-      agent = new Agent(client)
+      agent        = new Agent(client)
       traceLogPath = "/Users/rory.graves/workspace/home/llm4s/log/single-step-trace.md"
-      query = "I'm planning a trip to Paris. What's the weather like there now?"
-      _ = println(s"Trace log will be written to: $traceLogPath\n")
-      _ = println(s"User Query: $query\n")
-      _ = println("=== Running Step-by-Step ===\n")
-      state = agent.initialize(query, toolRegistry)
-      _ = println(s"Initial state initialized with ${state.conversation.messages.length} messages")
-      _ = agent.writeTraceLog(state, traceLogPath)
+      query        = "I'm planning a trip to Paris. What's the weather like there now?"
+      _            = println(s"Trace log will be written to: $traceLogPath\n")
+      _            = println(s"User Query: $query\n")
+      _            = println("=== Running Step-by-Step ===\n")
+      state        = agent.initialize(query, toolRegistry)
+      _            = println(s"Initial state initialized with ${state.conversation.messages.length} messages")
+      _            = agent.writeTraceLog(state, traceLogPath)
       _ = {
         var stepCount = 0
-        var stat = state
+        var stat      = state
         while (stat.status == AgentStatus.InProgress && stepCount < 5) {
           println(s"\nRunning step ${stepCount + 1}...")
           agent.runStep(state) match {
@@ -53,14 +53,12 @@ object SingleStepAgentExample {
         println(s"Total messages: ${stat.conversation.messages.length}")
         println(s"Trace log has been written to: $traceLogPath")
       }
-      _ =  println("\n=== Complete Agent State Dump ===\n")
+      _ = println("\n=== Complete Agent State Dump ===\n")
       _ = state.dump()
     } yield ()
 
     result.fold(
-      err => {
-        println(s"Error: ${err.formatted}");
-      },
+      err => println(s"Error: ${err.formatted}"),
       identity
     )
   }

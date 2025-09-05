@@ -5,7 +5,6 @@ import org.llm4s.error.LLMError
 import org.llm4s.types.Result
 import org.llm4s.resource.ManagedResource
 
-import java.io.FileOutputStream
 import java.nio.file.Path
 import scala.util.Try
 import org.llm4s.types.TryOps

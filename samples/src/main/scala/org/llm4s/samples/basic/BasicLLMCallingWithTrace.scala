@@ -24,7 +24,7 @@ object BasicLLMCallingWithTrace {
             UserMessage("What's the best way to train a parrot?")
           )
         )
-        
+
         // Trace the start of the agent run
         tracer.traceEvent("Starting LLM conversation")
 
@@ -66,4 +66,4 @@ object BasicLLMCallingWithTrace {
     } yield ()
     result.fold(err => println(s"Error: ${err.formatted}"), identity)
   }
-} 
+}

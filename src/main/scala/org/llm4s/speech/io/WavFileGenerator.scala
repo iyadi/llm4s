@@ -3,12 +3,11 @@ package org.llm4s.speech.io
 import org.llm4s.error.LLMError
 import org.llm4s.types.Result
 import org.llm4s.speech.{ GeneratedAudio, AudioMeta, AudioFormat }
-import org.llm4s.speech.io.BinaryWriter._
 import org.llm4s.resource.ManagedResource
 
-import java.io.{ ByteArrayInputStream, ByteArrayOutputStream, FileOutputStream, DataOutputStream }
+import java.io.{ ByteArrayOutputStream, DataOutputStream }
 import java.nio.file.{ Path, Files }
-import javax.sound.sampled.{ AudioFileFormat, AudioFormat => JAudioFormat, AudioInputStream, AudioSystem }
+import javax.sound.sampled.{ AudioFileFormat, AudioFormat => JAudioFormat, AudioSystem }
 import scala.util.Try
 import org.llm4s.types.TryOps
 

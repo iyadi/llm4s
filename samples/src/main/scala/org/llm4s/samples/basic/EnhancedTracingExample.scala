@@ -3,12 +3,12 @@ package org.llm4s.samples.basic
 import org.llm4s.config.ConfigReader
 import org.llm4s.config.ConfigReader.LLMConfig
 import org.llm4s.llmconnect.model.TokenUsage
-import org.llm4s.trace.{EnhancedTracing, TraceEvent, TracingComposer, TracingMode}
+import org.llm4s.trace.{ EnhancedTracing, TraceEvent, TracingComposer, TracingMode }
 import org.slf4j.LoggerFactory
 
 object EnhancedTracingExample {
   private val logger = LoggerFactory.getLogger(getClass)
-  
+
   def main(args: Array[String]): Unit = {
     logger.info("Enhanced Tracing Example")
     logger.info("=" * 50)
@@ -50,8 +50,8 @@ object EnhancedTracingExample {
   private def example2(config: ConfigReader, agentEvent: TraceEvent.AgentInitialized) = {
     // Example 2: Composed tracing (multiple tracers)
     logger.info("2. Composed Tracing (Console + NoOp)")
-    val consoleTracer = EnhancedTracing.create(TracingMode.Console)(config)
-    val noOpTracer = EnhancedTracing.create(TracingMode.NoOp)(config)
+    val consoleTracer  = EnhancedTracing.create(TracingMode.Console)(config)
+    val noOpTracer     = EnhancedTracing.create(TracingMode.NoOp)(config)
     val composedTracer = TracingComposer.combine(consoleTracer, noOpTracer)
 
     composedTracer.traceEvent(agentEvent)
@@ -124,7 +124,7 @@ object EnhancedTracingExample {
     logger.info("6. Error Handling")
     val result = basicTracer.traceEvent(agentEvent)
     result match {
-      case Right(_) => logger.info("Tracing successful")
+      case Right(_)    => logger.info("Tracing successful")
       case Left(error) => logger.error(s"Tracing failed: ${error.message}")
     }
   }

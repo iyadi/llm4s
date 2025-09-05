@@ -1,15 +1,15 @@
 package org.llm4s.samples.basic
 
 import org.llm4s.Result
-import org.llm4s.agent.{Agent, AgentState, AgentStatus}
+import org.llm4s.agent.{ Agent, AgentState, AgentStatus }
 import org.llm4s.config.ConfigReader
 import org.llm4s.config.ConfigReader.LLMConfig
 import org.llm4s.error.LLMError
 import org.llm4s.llmconnect.LLMConnect
-import org.llm4s.samples.util.{BenchmarkUtil, TracingUtil}
+import org.llm4s.samples.util.{ BenchmarkUtil, TracingUtil }
 import org.llm4s.toolapi.ToolRegistry
 import org.llm4s.toolapi.tools.CalculatorTool
-import org.llm4s.trace.{EnhancedTracing, TracingComposer, TracingMode}
+import org.llm4s.trace.{ EnhancedTracing, TracingComposer, TracingMode }
 import org.llm4s.types.Result
 import org.slf4j.LoggerFactory
 
@@ -66,7 +66,7 @@ object AgentLLMCallingExample {
   /**
    * Create comprehensive tracing with all three modes combined
    */
-  private def createComprehensiveTracing()(config: ConfigReader): Result[EnhancedTracing] = Result.fromTry{
+  private def createComprehensiveTracing()(config: ConfigReader): Result[EnhancedTracing] = Result.fromTry {
     Try {
       // Create individual tracers
       val langfuseTracing = EnhancedTracing.create(TracingMode.Langfuse)(config)
@@ -90,43 +90,44 @@ object AgentLLMCallingExample {
   /**
    * Simple Calculator Agent Demo
    */
-  private def demonstrateCalculatorAgent(tracing: EnhancedTracing)(config:ConfigReader) = {
+  private def demonstrateCalculatorAgent(tracing: EnhancedTracing)(config: ConfigReader) = {
     logger.info("🧮 Calculator Agent Demo")
     logger.info("Testing calculator tool with agent framework")
 
-    val benchmarkResult: BenchmarkUtil.BenchmarkResult[Either[LLMError, AgentExecutionResult]] = BenchmarkUtil.timeWithSteps { timer =>
-      for {
-        llmClient <- LLMConnect.getClient(config)
-        agent     = new Agent(llmClient)
-        agentExecutionResult = {
-          val tools = Seq(CalculatorTool.tool)
-          val toolRegistry = new ToolRegistry(tools)
+    val benchmarkResult: BenchmarkUtil.BenchmarkResult[Either[LLMError, AgentExecutionResult]] =
+      BenchmarkUtil.timeWithSteps { timer =>
+        for {
+          llmClient <- LLMConnect.getClient(config)
+          agent = new Agent(llmClient)
+          agentExecutionResult = {
+            val tools        = Seq(CalculatorTool.tool)
+            val toolRegistry = new ToolRegistry(tools)
 
-          logger.info("🔧 Available Tools:")
-          tools.foreach(tool => logger.info("• {}: {}", tool.name, tool.description))
-          // Initialize agent state with tools and query
-          val query = "Calculate 15 to the power of 3, and then calculate the square root of that result."
+            logger.info("🔧 Available Tools:")
+            tools.foreach(tool => logger.info("• {}: {}", tool.name, tool.description))
+            // Initialize agent state with tools and query
+            val query = "Calculate 15 to the power of 3, and then calculate the square root of that result."
 
-          val agentState = agent.initialize(
-            query = query,
-            tools = toolRegistry,
-            systemPromptAddition = Some(
-              "You have access to a calculator tool. Use it to perform mathematical calculations. IMPORTANT: Make only ONE tool call at a time, wait for the result, then make the next tool call if needed."
+            val agentState = agent.initialize(
+              query = query,
+              tools = toolRegistry,
+              systemPromptAddition = Some(
+                "You have access to a calculator tool. Use it to perform mathematical calculations. IMPORTANT: Make only ONE tool call at a time, wait for the result, then make the next tool call if needed."
+              )
             )
-          )
 
-          // Trace agent initialization
-          TracingUtil.traceAgentInitialization(tracing, query, tools)
+            // Trace agent initialization
+            TracingUtil.traceAgentInitialization(tracing, query, tools)
 
-          logger.info("🔄 Running calculator agent...")
-          logger.info("Query: {}", query)
+            logger.info("🔄 Running calculator agent...")
+            logger.info("Query: {}", query)
 
-          // Execute agent with real step-by-step execution
-          executeAgentWithRealTracing(agent, agentState, tracing, timer)
-        }
+            // Execute agent with real step-by-step execution
+            executeAgentWithRealTracing(agent, agentState, tracing, timer)
+          }
 
-      } yield agentExecutionResult
-    }
+        } yield agentExecutionResult
+      }
 
     for {
       agentResult <- benchmarkResult.result

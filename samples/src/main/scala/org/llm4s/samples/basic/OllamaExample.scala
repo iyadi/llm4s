@@ -15,10 +15,10 @@ object OllamaExample {
     )
 
     val result = for {
-      config <- LLMConfig()
-      client <- LLMConnect.getClient(config)
+      config     <- LLMConfig()
+      client     <- LLMConnect.getClient(config)
       completion <- client.complete(conversation, CompletionOptions())
-      _ =  Console.println("Assistant:\n" + completion.message.content)
+      _ = Console.println("Assistant:\n" + completion.message.content)
     } yield ()
 
     result.fold(err => Console.err.println(s"Error: ${err.formatted}"), identity)

@@ -12,6 +12,7 @@ import org.llm4s.toolapi.ToolFunction
 import org.slf4j.LoggerFactory
 
 import scala.util.Try
+
 /**
  * This example shows how an LLM agent can use the Playwright MCP server
  * to perform browser automation tasks like navigation, clicking, and data extraction.
@@ -32,16 +33,14 @@ import scala.util.Try
 object PlaywrightExample {
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private def logNoToolsError(): Unit = {
-    logger.error(
-      """
+  private def logNoToolsError(): Unit =
+    logger.error("""
         |❌ No tools available from Playwright MCP server
         |This could indicate:
         |  1. The MCP server failed to start
         |  2. Network issues preventing package download
         |  3. Node.js or npx not properly installed
         |""".stripMargin)
-  }
 
   private def logToolsInfo(tools: Seq[ToolFunction[?, ?]]): Unit = {
     logger.info("📦 Available Playwright tools ({} total):", tools.size)
@@ -52,10 +51,8 @@ object PlaywrightExample {
 
   private def checkForTools(mcpRegistry: MCPToolRegistry): Either[String, Seq[ToolFunction[?, ?]]] = {
     val allTools = mcpRegistry.getAllTools
-    val result = Either.cond(allTools.nonEmpty,
-      allTools,
-      "No tools available from Playwright MCP server")
-    result.bimap (_ => logNoToolsError(), tools => logToolsInfo(tools))
+    val result   = Either.cond(allTools.nonEmpty, allTools, "No tools available from Playwright MCP server")
+    result.bimap(_ => logNoToolsError(), tools => logToolsInfo(tools))
     result
   }
 
@@ -86,7 +83,7 @@ object PlaywrightExample {
       _ => logger.info("✨ Browser automation example completed successfully!")
     )
   }
-  
+
   // Validate that prerequisites are installed
   private def checkCommand(cmd: String, toolName: String): Either[String, Unit] =
     Try {
@@ -100,10 +97,10 @@ object PlaywrightExample {
       }
     }.toEither.leftMap(ex => ex.getMessage)
 
-  private def validatePrerequisites()(config:ConfigReader): Either[String, LLMClient] =
+  private def validatePrerequisites()(config: ConfigReader): Either[String, LLMClient] =
     for {
-      _ <- checkCommand("node", "Node.js")
-      _ <- checkCommand("npx", "npx")
+      _      <- checkCommand("node", "Node.js")
+      _      <- checkCommand("npx", "npx")
       client <- LLMConnect.getClient(config).leftMap(_.formatted)
     } yield {
       logger.info("✅ Prerequisites validated and LLM client initialized")
@@ -160,7 +157,8 @@ object PlaywrightExample {
           logger.info("✅ Query {} completed: {}", queryNum, finalState.status)
 
           // Show final answer
-          finalState.conversation.messages.findLast(_.role == Assistant)
+          finalState.conversation.messages
+            .findLast(_.role == Assistant)
             .fold {
               logger.warn("❌ No final answer found")
             } { msg =>

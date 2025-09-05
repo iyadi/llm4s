@@ -16,18 +16,18 @@ object MultiStepAgentExample {
     val res = for {
       reader <- LLMConfig()
       client <- LLMConnect.getClient(reader)
-      toolRegistry = new ToolRegistry(Seq(WeatherTool.tool))
-      agent = new Agent(client)
-      query = "What's the weather like in London, and is it different from New York?"
-      _ = println(s"User Query: $query\n")
-      traceLogPath = "/Users/rory.graves/workspace/home/llm4s/log/agent-trace.md"
-      _ = println(s"Trace log will be written to: $traceLogPath\n")
-      _ = println("=== Running Multi-Step Agent to Completion ===\n")
-      _ = println("Example 1: Running without a step limit, with trace logging")
-      _ = println("\n\n=== Running Multi-Step Agent with Step Limit ===\n")
-      _ = println("Example 2: Running with a step limit of 1, with trace logging")
+      toolRegistry        = new ToolRegistry(Seq(WeatherTool.tool))
+      agent               = new Agent(client)
+      query               = "What's the weather like in London, and is it different from New York?"
+      _                   = println(s"User Query: $query\n")
+      traceLogPath        = "/Users/rory.graves/workspace/home/llm4s/log/agent-trace.md"
+      _                   = println(s"Trace log will be written to: $traceLogPath\n")
+      _                   = println("=== Running Multi-Step Agent to Completion ===\n")
+      _                   = println("Example 1: Running without a step limit, with trace logging")
+      _                   = println("\n\n=== Running Multi-Step Agent with Step Limit ===\n")
+      _                   = println("Example 2: Running with a step limit of 1, with trace logging")
       limitedTraceLogPath = "/Users/rory.graves/workspace/home/llm4s/log/agent-trace-limited.md"
-      _ =  agent.run(query, toolRegistry, Some(1), Some(limitedTraceLogPath), None) match {
+      _ = agent.run(query, toolRegistry, Some(1), Some(limitedTraceLogPath), None) match {
         case Right(finalState) =>
           println(s"Final status: ${finalState.status}")
 
@@ -57,21 +57,21 @@ object MultiStepAgentExample {
           println(s"Error running agent: $error")
       }
       // Example 3: Manual step execution to show the two-phase flow
-      _ =println("\n\n=== Manual Step Execution to Demonstrate Two-Phase Flow ===\n")
-      _ =   println("Example 3: Running with manual step execution")
+      _                  = println("\n\n=== Manual Step Execution to Demonstrate Two-Phase Flow ===\n")
+      _                  = println("Example 3: Running with manual step execution")
       manualTraceLogPath = "/Users/rory.graves/workspace/home/llm4s/log/agent-trace-manual.md"
-      initialState = agent.initialize(query, toolRegistry)
-      _ = println(s"Initial state: ${initialState.status}")
-      _ =   agent.writeTraceLog(initialState, manualTraceLogPath)
-      _ =   println(s"Initial state written to trace log: $manualTraceLogPath")
-      _ =  println("\nStep 1: Running LLM completion (usually generates tool calls)")
+      initialState       = agent.initialize(query, toolRegistry)
+      _                  = println(s"Initial state: ${initialState.status}")
+      _                  = agent.writeTraceLog(initialState, manualTraceLogPath)
+      _                  = println(s"Initial state written to trace log: $manualTraceLogPath")
+      _                  = println("\nStep 1: Running LLM completion (usually generates tool calls)")
       afterLLMStep <- agent.runStep(initialState)
       _ = agent.writeTraceLog(afterLLMStep, manualTraceLogPath)
       _ = println("\nConversation after LLM step:")
-      _ =  afterLLMStep.conversation.messages.foreach(msg => println(s"[${msg.role}] ${msg.content}"))
+      _ = afterLLMStep.conversation.messages.foreach(msg => println(s"[${msg.role}] ${msg.content}"))
       _ = println("\nStep 2: Processing tool calls")
       afterToolStep <- agent.runStep(afterLLMStep)
-      _ =  agent.writeTraceLog(afterToolStep, manualTraceLogPath)
+      _ = agent.writeTraceLog(afterToolStep, manualTraceLogPath)
       _ = println("\nConversation after tool execution:")
       _ = afterToolStep.conversation.messages.takeRight(2).foreach { msg =>
         println(s"[${msg.role}] ${if (msg.role == Tool) msg.content.take(50) + "..." else msg.content}")
@@ -80,9 +80,7 @@ object MultiStepAgentExample {
       _ = println(s"\nManual trace log has been written to: $manualTraceLogPath")
     } yield ()
     res.fold(
-      err => {
-        println(s"Error: ${err.formatted}");
-      },
+      err => println(s"Error: ${err.formatted}"),
       identity
     )
   }

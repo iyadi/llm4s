@@ -2,7 +2,7 @@ package org.llm4s.samples.basic
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import org.llm4s.trace.{EnhancedTracing, TracingComposer, TraceEvent, TracingMode}
+import org.llm4s.trace.{ EnhancedTracing, TracingComposer, TraceEvent, TracingMode }
 import org.llm4s.llmconnect.model.TokenUsage
 import org.llm4s.config.ConfigReader.LLMConfig
 import org.llm4s.config.ConfigReader
@@ -47,7 +47,7 @@ class EnhancedTracingExampleTest extends AnyFunSuite with Matchers {
 
   test("should filter tracing to only error events") {
     withCfg { cfg =>
-      val consoleTracer  = EnhancedTracing.create(TracingMode.Console)(cfg)
+      val consoleTracer = EnhancedTracing.create(TracingMode.Console)(cfg)
       val errorOnlyTracer = TracingComposer.filter(consoleTracer) { event =>
         event.isInstanceOf[TraceEvent.ErrorOccurred]
       }
@@ -74,7 +74,7 @@ class EnhancedTracingExampleTest extends AnyFunSuite with Matchers {
 
   test("should transform tracing events with metadata") {
     withCfg { cfg =>
-      val consoleTracer    = EnhancedTracing.create(TracingMode.Console)(cfg)
+      val consoleTracer = EnhancedTracing.create(TracingMode.Console)(cfg)
       val transformedTracer = TracingComposer.transform(consoleTracer) { event =>
         event match {
           case e: TraceEvent.CustomEvent =>
@@ -152,7 +152,7 @@ class EnhancedTracingExampleTest extends AnyFunSuite with Matchers {
 
       val complexTracer = TracingComposer.combine(
         consoleTracer,
-        TracingComposer.filter(noOpTracer) { _.isInstanceOf[TraceEvent.CompletionReceived] },
+        TracingComposer.filter(noOpTracer)(_.isInstanceOf[TraceEvent.CompletionReceived]),
         TracingComposer.transform(consoleTracer) {
           case e: TraceEvent.TokenUsageRecorded =>
             TraceEvent.TokenUsageRecorded(

@@ -20,9 +20,9 @@ object EmbeddingExample {
   // ------------------------ Output knobs (env-tunable) ------------------------
   private val MAX_ROWS_PER_FILE: Int =
     sys.env.get("MAX_ROWS_PER_FILE").flatMap(s => Try(s.toInt).toOption).getOrElse(200)
-  private val TOP_DIMS_PER_ROW: Int  =
+  private val TOP_DIMS_PER_ROW: Int =
     sys.env.get("TOP_DIMS_PER_ROW").flatMap(s => Try(s.toInt).toOption).getOrElse(6)
-  private val GLOBAL_TOPK: Int       =
+  private val GLOBAL_TOPK: Int =
     sys.env.get("GLOBAL_TOPK").flatMap(s => Try(s.toInt).toOption).getOrElse(10)
   private val SHOW_GLOBAL_TOP: Boolean =
     sys.env.get("SHOW_GLOBAL_TOP").exists(_.trim.equalsIgnoreCase("true"))
@@ -34,12 +34,12 @@ object EmbeddingExample {
     sys.env.get("TABLE_WIDTH").flatMap(s => Try(s.toInt).toOption).getOrElse(120)
 
   // Column widths
-  private val COL_IDX   = 4
-  private val COL_ID    = 56
-  private val COL_DIM   = 6
-  private val COL_SIM   = 28
-  private val COL_TOP   = math.max(18, TABLE_WIDTH - (COL_IDX + 1 + COL_ID + 2 + COL_DIM + 2 + COL_SIM + 2 + 18))
-  private val COL_META  = 18
+  private val COL_IDX  = 4
+  private val COL_ID   = 56
+  private val COL_DIM  = 6
+  private val COL_SIM  = 28
+  private val COL_TOP  = math.max(18, TABLE_WIDTH - (COL_IDX + 1 + COL_ID + 2 + COL_DIM + 2 + COL_SIM + 2 + 18))
+  private val COL_META = 18
 
   def main(args: Array[String]): Unit = {
     logger.info("Starting embedding example...")
@@ -52,14 +52,14 @@ object EmbeddingExample {
         val query = EmbeddingConfig.query(config)
         val queryVecOpt = for {
           configQuery <- query
-          quertVect <- embedQueryOnce(client, configQuery, config)
+          quertVect   <- embedQueryOnce(client, configQuery, config)
         } yield quertVect
         // accumulate results
         val perFileRows = collection.mutable.ArrayBuffer.empty[(String, Seq[Row])]
-        val globalText = collection.mutable.ArrayBuffer.empty[Row]
-        val errors = collection.mutable.ArrayBuffer.empty[String]
-        var fileCount = 0
-        var chunkTotal = 0
+        val globalText  = collection.mutable.ArrayBuffer.empty[Row]
+        val errors      = collection.mutable.ArrayBuffer.empty[String]
+        var fileCount   = 0
+        var chunkTotal  = 0
 
         targets.foreach { p =>
           fileCount += 1
@@ -71,7 +71,7 @@ object EmbeddingExample {
             case Right(Nil) =>
               println(yellow(s"[WARN] ${p.getFileName}: no embeddings."))
             case Right(vecs) =>
-              val rows = toRows(p.getFileName.toString, vecs, queryVecOpt, TOP_DIMS_PER_ROW)
+              val rows    = toRows(p.getFileName.toString, vecs, queryVecOpt, TOP_DIMS_PER_ROW)
               val clipped = rows.take(MAX_ROWS_PER_FILE)
               perFileRows += ((p.getFileName.toString, clipped))
               chunkTotal += clipped.size
@@ -91,12 +91,14 @@ object EmbeddingExample {
           println(renderGlobalTop(top))
         }
 
-        println(renderSummary(
-          files = fileCount,
-          chunks = chunkTotal,
-          errors = errors.toSeq,
-          perFileRows = perFileRows.flatMap(_._2).toSeq
-        ))
+        println(
+          renderSummary(
+            files = fileCount,
+            chunks = chunkTotal,
+            errors = errors.toSeq,
+            perFileRows = perFileRows.flatMap(_._2).toSeq
+          )
+        )
       }
     } yield ()
 
@@ -146,15 +148,15 @@ object EmbeddingExample {
 
     ordered.map { case (v, s) =>
       Row(
-        file       = fileName,
-        id         = v.id,
-        modality   = v.modality.toString,
-        dim        = v.dim,
-        model      = v.model,
+        file = fileName,
+        id = v.id,
+        modality = v.modality.toString,
+        dim = v.dim,
+        model = v.model,
         similarity = s,
-        topDims    = topKAbs(v.values, topDims),
-        provider   = v.meta.getOrElse("provider", "n/a"),
-        mime       = v.meta.getOrElse("mime", "n/a")
+        topDims = topKAbs(v.values, topDims),
+        provider = v.meta.getOrElse("provider", "n/a"),
+        mime = v.meta.getOrElse("mime", "n/a")
       )
     }
   }
@@ -172,7 +174,7 @@ object EmbeddingExample {
         Files.list(p).iterator().asScala.filter(Files.isRegularFile(_)).toSeq
       else Seq(p)
     }
-    expanded.foldLeft(Vector.empty[Path]) { (acc, p) => if (acc.contains(p)) acc else acc :+ p }
+    expanded.foldLeft(Vector.empty[Path])((acc, p) => if (acc.contains(p)) acc else acc :+ p)
   }
   private def splitList(s: String): Seq[String] = s.split("[,;]").toSeq
 
@@ -203,7 +205,8 @@ object EmbeddingExample {
       bold("=" * TABLE_WIDTH),
       bold(s"Embedding Report  |  provider: $provider$qStr"),
       s"generated: $time",
-      s"chunking: enabled=${EmbeddingConfig.chunkingEnabled(config)}  size=${EmbeddingConfig.chunkSize(config)}  overlap=${EmbeddingConfig.chunkOverlap(config)}",
+      s"chunking: enabled=${EmbeddingConfig.chunkingEnabled(config)}  size=${EmbeddingConfig
+          .chunkSize(config)}  overlap=${EmbeddingConfig.chunkOverlap(config)}",
       s"flags: SHOW_GLOBAL_TOP=$SHOW_GLOBAL_TOP  GLOBAL_TOPK=$GLOBAL_TOPK  COLOR=$COLOR_ENABLED",
       bold("=" * TABLE_WIDTH)
     )
@@ -219,7 +222,9 @@ object EmbeddingExample {
     val count    = rows.size
 
     val header =
-      s"\n${cyan(s"-- File: $name")}  |  modality: ${bold(modality)}  |  model: ${bold(model)}  |  dim: ${bold(dim.toString)}  |  chunks: ${bold(count.toString)}\n" +
+      s"\n${cyan(s"-- File: $name")}  |  modality: ${bold(modality)}  |  model: ${bold(model)}  |  dim: ${bold(
+          dim.toString
+        )}  |  chunks: ${bold(count.toString)}\n" +
         ("-" * TABLE_WIDTH) + "\n" +
         bold(
           col("#", COL_IDX) + " " +
@@ -230,19 +235,21 @@ object EmbeddingExample {
             col("meta", COL_META)
         )
 
-    val body = rows.zipWithIndex.map { case (r, i) =>
-      val simStr = r.similarity.map(s => s"${fmt4(s)} ${simBar(s, 18)}").getOrElse(gray("n/a"))
-      val tops   = r.topDims.map{ case (idx, v) => s"$idx:${fmt3(v)}" }.mkString(", ")
-      val idStr  = truncate(r.id, COL_ID)
-      val meta   = truncate(s"${r.provider},${r.mime}", COL_META)
+    val body = rows.zipWithIndex
+      .map { case (r, i) =>
+        val simStr = r.similarity.map(s => s"${fmt4(s)} ${simBar(s, 18)}").getOrElse(gray("n/a"))
+        val tops   = r.topDims.map { case (idx, v) => s"$idx:${fmt3(v)}" }.mkString(", ")
+        val idStr  = truncate(r.id, COL_ID)
+        val meta   = truncate(s"${r.provider},${r.mime}", COL_META)
 
-      col((i + 1).toString, COL_IDX) + " " +
-        col(idStr, COL_ID) + "  " +
-        col(r.dim.toString, COL_DIM) + "  " +
-        col(simStr, COL_SIM) + "  " +
-        col(truncate(tops, COL_TOP), COL_TOP) + "  " +
-        col(meta, COL_META)
-    }.mkString("\n")
+        col((i + 1).toString, COL_IDX) + " " +
+          col(idStr, COL_ID) + "  " +
+          col(r.dim.toString, COL_DIM) + "  " +
+          col(simStr, COL_SIM) + "  " +
+          col(truncate(tops, COL_TOP), COL_TOP) + "  " +
+          col(meta, COL_META)
+      }
+      .mkString("\n")
 
     header + "\n" + body + "\n"
   }
@@ -258,26 +265,28 @@ object EmbeddingExample {
           col("meta", COL_META)
       )
 
-    val body = rows.zipWithIndex.map { case (r, i) =>
-      val simStr = r.similarity.map(s => s"${fmt4(s)} ${simBar(s, 18)}").getOrElse(gray("n/a"))
-      val tops   = r.topDims.map{ case (idx, v) => s"$idx:${fmt3(v)}" }.mkString(", ")
-      val idStr  = truncate(s"${r.file}:${r.id}", COL_ID)
-      val meta   = truncate(s"${r.provider},${r.mime}", COL_META)
+    val body = rows.zipWithIndex
+      .map { case (r, i) =>
+        val simStr = r.similarity.map(s => s"${fmt4(s)} ${simBar(s, 18)}").getOrElse(gray("n/a"))
+        val tops   = r.topDims.map { case (idx, v) => s"$idx:${fmt3(v)}" }.mkString(", ")
+        val idStr  = truncate(s"${r.file}:${r.id}", COL_ID)
+        val meta   = truncate(s"${r.provider},${r.mime}", COL_META)
 
-      col((i + 1).toString, COL_IDX) + " " +
-        col(idStr, COL_ID) + "  " +
-        col(r.dim.toString, COL_DIM) + "  " +
-        col(simStr, COL_SIM) + "  " +
-        col(truncate(tops, COL_TOP), COL_TOP) + "  " +
-        col(meta, COL_META)
-    }.mkString("\n")
+        col((i + 1).toString, COL_IDX) + " " +
+          col(idStr, COL_ID) + "  " +
+          col(r.dim.toString, COL_DIM) + "  " +
+          col(simStr, COL_SIM) + "  " +
+          col(truncate(tops, COL_TOP), COL_TOP) + "  " +
+          col(meta, COL_META)
+      }
+      .mkString("\n")
 
     header + "\n" + body + "\n"
   }
 
   private def renderSummary(files: Int, chunks: Int, errors: Seq[String], perFileRows: Seq[Row]): String = {
-    val byMod = perFileRows.groupBy(_.modality).map{ case (m, rs) => s"$m=${rs.size}" }.toSeq.sorted.mkString(", ")
-    val models = perFileRows.groupBy(_.model).map{ case (m, rs) => s"$m(${rs.size})" }.toSeq.sorted.mkString(", ")
+    val byMod  = perFileRows.groupBy(_.modality).map { case (m, rs) => s"$m=${rs.size}" }.toSeq.sorted.mkString(", ")
+    val models = perFileRows.groupBy(_.model).map { case (m, rs) => s"$m(${rs.size})" }.toSeq.sorted.mkString(", ")
 
     val lines = Seq(
       bold("=" * TABLE_WIDTH),
@@ -307,8 +316,8 @@ object EmbeddingExample {
     else cyan(bar) // changed from red(bar)
   }
 
-  private def fmt4(d: Double): String = f"$d%1.4f"
-  private def fmt3(f: Float): String  = f"$f%1.3f"
+  private def fmt4(d: Double): String             = f"$d%1.4f"
+  private def fmt3(f: Float): String              = f"$f%1.3f"
   private def truncate(s: String, n: Int): String = if (s.length <= n) s else s.take(math.max(0, n - 3)) + "..."
   private def col(s: String, n: Int): String = {
     val t = truncate(s, n)
@@ -317,11 +326,11 @@ object EmbeddingExample {
 
   // ANSI helpers
   private def wrap(code: String, s: String): String = if (COLOR_ENABLED) s"\u001b[${code}m$s\u001b[0m" else s
-  private def bold(s: String)    = wrap("1", s)
-  private def red(s: String)     = wrap("31", s)
-  private def green(s: String)   = wrap("32", s)
-  private def yellow(s: String)  = wrap("33", s)
-  private def magenta(s: String) = wrap("35", s)
-  private def cyan(s: String)    = wrap("36", s)
-  private def gray(s: String)    = wrap("90", s)
+  private def bold(s: String)                       = wrap("1", s)
+  private def red(s: String)                        = wrap("31", s)
+  private def green(s: String)                      = wrap("32", s)
+  private def yellow(s: String)                     = wrap("33", s)
+  private def magenta(s: String)                    = wrap("35", s)
+  private def cyan(s: String)                       = wrap("36", s)
+  private def gray(s: String)                       = wrap("90", s)
 }

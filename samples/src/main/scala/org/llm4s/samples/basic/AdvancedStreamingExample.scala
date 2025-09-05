@@ -10,34 +10,34 @@ import scala.collection.mutable
 /**
  * Advanced streaming example demonstrating real-time progress indicators,
  * detailed metrics tracking, and streaming analytics for LLM responses.
- * 
+ *
  * Features:
  * - Visual progress indicators during streaming
  * - Word wrapping for better display
  * - Detailed streaming metrics (chunk delays, throughput, token usage)
  * - Content statistics (words, sentences, paragraphs)
  * - Chunk delay distribution histogram
- * 
+ *
  * To run this example:
  * ```bash
  * # Set up environment variables (choose one provider)
  * export LLM_MODEL=openai/gpt-4o-mini      # For OpenAI (faster model)
  * export OPENAI_API_KEY=sk-...             # Your OpenAI API key
- * 
+ *
  * # OR for Anthropic:
  * export LLM_MODEL=anthropic/claude-3-5-haiku-latest  # Faster Anthropic model
  * export ANTHROPIC_API_KEY=sk-ant-...      # Your Anthropic API key
- * 
+ *
  * # Optional: Enable tracing for additional insights
  * export TRACING_MODE=print                # or "langfuse" with proper keys
- * 
+ *
  * # Run the example
  * sbt "samples/runMain org.llm4s.samples.basic.AdvancedStreamingExample"
- * 
+ *
  * # For Scala 2.13 compatibility:
  * sbt ++2.13.16 "samples/runMain org.llm4s.samples.basic.AdvancedStreamingExample"
  * ```
- * 
+ *
  * Note: This example generates a short story, which works best with models
  * that support longer responses. The streaming metrics are most interesting
  * when the response is longer (3+ paragraphs).
@@ -54,27 +54,27 @@ object AdvancedStreamingExample {
     )
     // Track streaming metrics
     var firstChunkTime: Option[Long] = None
-    var lastChunkTime: Long = 0
-    val chunkSizes = mutable.ArrayBuffer[Int]()
-    val chunkTimes = mutable.ArrayBuffer[Long]()
-    var wordCount = 0
-    var sentenceCount = 0
-    var paragraphCount = 0
-    val startTime = System.currentTimeMillis()
+    var lastChunkTime: Long          = 0
+    val chunkSizes                   = mutable.ArrayBuffer[Int]()
+    val chunkTimes                   = mutable.ArrayBuffer[Long]()
+    var wordCount                    = 0
+    var sentenceCount                = 0
+    var paragraphCount               = 0
+    val startTime                    = System.currentTimeMillis()
 
     // Visual progress indicator
-    val spinner = Array('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
+    val spinner      = Array('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
     var spinnerIndex = 0
 
     println("\n📖 Story streaming in progress...\n")
 
     // Buffer for current line to handle word wrapping
-    var currentLine = ""
+    var currentLine   = ""
     val maxLineLength = 80
 
     val result = for {
       config <- LLMConfig()
-      model <- config.require(LLM_MODEL)
+      model  <- config.require(LLM_MODEL)
       _ = {
         println(s"🎨 Advanced Streaming Example - Story Generation")
         println(s"📍 Using model: $model")
@@ -87,55 +87,53 @@ object AdvancedStreamingExample {
         client.streamComplete(
           conversation,
           CompletionOptions(),
-          onChunk = {
-            chunk => {
-              val chunkTime = System.currentTimeMillis()
-              // Record first chunk timing
-              if (firstChunkTime.isEmpty) {
-                firstChunkTime = Some(chunkTime - startTime)
-                println(s"⚡ First chunk received in ${firstChunkTime.get}ms\n")
-                println("-" * maxLineLength)
+          onChunk = { chunk =>
+            val chunkTime = System.currentTimeMillis()
+            // Record first chunk timing
+            if (firstChunkTime.isEmpty) {
+              firstChunkTime = Some(chunkTime - startTime)
+              println(s"⚡ First chunk received in ${firstChunkTime.get}ms\n")
+              println("-" * maxLineLength)
+            }
+            chunk.content.foreach { content =>
+              // Track metrics
+              chunkSizes += content.length
+              if (lastChunkTime > 0) {
+                chunkTimes += (chunkTime - lastChunkTime)
               }
-              chunk.content.foreach { content =>
-                // Track metrics
-                chunkSizes += content.length
-                if (lastChunkTime > 0) {
-                  chunkTimes += (chunkTime - lastChunkTime)
-                }
-                lastChunkTime = chunkTime
+              lastChunkTime = chunkTime
 
-                // Count words and sentences
-                wordCount += content.split("\\s+").filter(_.nonEmpty).length
-                sentenceCount += content.count(c => c == '.' || c == '!' || c == '?')
-                paragraphCount += content.count(_ == '\n')
+              // Count words and sentences
+              wordCount += content.split("\\s+").filter(_.nonEmpty).length
+              sentenceCount += content.count(c => c == '.' || c == '!' || c == '?')
+              paragraphCount += content.count(_ == '\n')
 
-                // Handle word wrapping for better display
-                val words = (currentLine + content).split(" ")
-                currentLine = ""
+              // Handle word wrapping for better display
+              val words = (currentLine + content).split(" ")
+              currentLine = ""
 
-                words.foreach { word =>
-                  if ((currentLine + " " + word).trim.length > maxLineLength) {
-                    println(currentLine)
-                    currentLine = word
-                  } else {
-                    currentLine = if (currentLine.isEmpty) word else s"$currentLine $word"
-                  }
-                }
-
-                // Handle newlines
-                if (content.contains("\n")) {
+              words.foreach { word =>
+                if ((currentLine + " " + word).trim.length > maxLineLength) {
                   println(currentLine)
-                  currentLine = ""
-                  content.split("\n").tail.foreach { _ => println() }
+                  currentLine = word
+                } else {
+                  currentLine = if (currentLine.isEmpty) word else s"$currentLine $word"
                 }
               }
 
-              // Show spinner for visual feedback during pauses
-              if (chunk.content.isEmpty && chunk.finishReason.isEmpty) {
-                print(s"\r${spinner(spinnerIndex)} Processing...")
-                spinnerIndex = (spinnerIndex + 1) % spinner.length
-                Thread.sleep(50)
+              // Handle newlines
+              if (content.contains("\n")) {
+                println(currentLine)
+                currentLine = ""
+                content.split("\n").tail.foreach(_ => println())
               }
+            }
+
+            // Show spinner for visual feedback during pauses
+            if (chunk.content.isEmpty && chunk.finishReason.isEmpty) {
+              print(s"\r${spinner(spinnerIndex)} Processing...")
+              spinnerIndex = (spinnerIndex + 1) % spinner.length
+              Thread.sleep(50)
             }
           }
         )
@@ -152,9 +150,9 @@ object AdvancedStreamingExample {
         println("=" * 60)
 
         // Calculate statistics
-        val avgChunkSize = if (chunkSizes.nonEmpty) chunkSizes.sum / chunkSizes.length else 0
+        val avgChunkSize  = if (chunkSizes.nonEmpty) chunkSizes.sum / chunkSizes.length else 0
         val avgChunkDelay = if (chunkTimes.nonEmpty) chunkTimes.sum / chunkTimes.length else 0
-        val throughput = if (totalTime > 0) (completion.message.content.length * 1000.0 / totalTime) else 0
+        val throughput    = if (totalTime > 0) completion.message.content.length * 1000.0 / totalTime else 0
 
         println(f"⏱️  Total streaming time: ${totalTime}ms")
         println(f"⚡ Time to first chunk: ${firstChunkTime.getOrElse(0L)}ms")
@@ -176,7 +174,7 @@ object AdvancedStreamingExample {
           println(f"   - Prompt tokens: ${usage.promptTokens}")
           println(f"   - Completion tokens: ${usage.completionTokens}")
           println(f"   - Total tokens: ${usage.totalTokens}")
-          val tokensPerSecond = if (totalTime > 0) (usage.completionTokens * 1000.0 / totalTime) else 0
+          val tokensPerSecond = if (totalTime > 0) usage.completionTokens * 1000.0 / totalTime else 0
           println(f"   - Generation speed: ${tokensPerSecond}%.1f tokens/second")
         }
 

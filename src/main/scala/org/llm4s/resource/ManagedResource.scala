@@ -1,7 +1,6 @@
 package org.llm4s.resource
 
 import org.llm4s.types.Result
-import org.llm4s.error.LLMError
 import scala.util.Try
 import org.llm4s.types.TryOps
 

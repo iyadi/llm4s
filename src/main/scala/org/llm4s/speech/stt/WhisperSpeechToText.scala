@@ -3,14 +3,12 @@ package org.llm4s.speech.stt
 import org.llm4s.types.Result
 import org.llm4s.speech.AudioInput
 import org.llm4s.speech.io.WavFileGenerator
-import org.llm4s.error.{ LLMError, ProcessingError }
+import org.llm4s.error.ProcessingError
 import cats.implicits._
 
 import java.nio.file.{ Files, Path }
 import java.io.IOException
 import scala.sys.process._
-import scala.util.Try
-import org.llm4s.types.TryOps
 
 /**
  * Enhanced Whisper integration via CLI (whisper.cpp or openai-whisper).

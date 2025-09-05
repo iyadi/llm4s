@@ -1,12 +1,11 @@
 package org.llm4s.speech.tts
 
-import org.llm4s.error.{ LLMError, ProcessingError }
+import org.llm4s.error.ProcessingError
 import org.llm4s.types.Result
-import org.llm4s.speech.{ GeneratedAudio, AudioMeta }
+import org.llm4s.speech.GeneratedAudio
 import org.llm4s.speech.io.WavFileGenerator
 import cats.implicits._
 
-import java.nio.file.Files
 import scala.sys.process._
 import scala.util.Try
 import org.llm4s.types.TryOps

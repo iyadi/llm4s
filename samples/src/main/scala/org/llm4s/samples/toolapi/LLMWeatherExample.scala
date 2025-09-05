@@ -17,16 +17,16 @@ object LLMWeatherExample {
       reader <- LLMConfig()
       client <- LLMConnect.getClient(reader)
       _ = {
-        val toolRegistry = new ToolRegistry(Seq(WeatherTool.tool))
+        val toolRegistry        = new ToolRegistry(Seq(WeatherTool.tool))
         val initialConversation = Conversation(Seq(UserMessage("What's the weather like in Paris, France?")))
-        val options = CompletionOptions(tools = Seq(WeatherTool.tool))
+        val options             = CompletionOptions(tools = Seq(WeatherTool.tool))
         println("Sending request to LLM with weather tool...")
         processLLMRequest(client, initialConversation, options, toolRegistry)
       }
     } yield ()
 
-    result.fold(err => println(s"Error: ${err.formatted}"), identity)    
-    
+    result.fold(err => println(s"Error: ${err.formatted}"), identity)
+
   }
 
   /**

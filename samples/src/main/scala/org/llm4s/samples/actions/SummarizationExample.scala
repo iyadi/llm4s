@@ -69,9 +69,9 @@ object SummarizationExample {
 
     // Get a client using environment variables (Result-first)
     val result = for {
-      reader <- LLMConfig()
-      client <- LLMConnect.getClient(reader)
-      completion <-  client.complete(conversation)
+      reader     <- LLMConfig()
+      client     <- LLMConnect.getClient(reader)
+      completion <- client.complete(conversation)
       _ = CompletionSummaryInfo(completion)
       summaryResult <- summarizeText(textToSummarize2, Some("50 words"))(client)
       _ = println(summaryResult)
@@ -98,11 +98,11 @@ object SummarizationExample {
       val tokenizerOpt = Tokenizer.lookupStringTokenizer(tokenizerId)
       if (tokenizerOpt.isDefined) {
 
-        val tokenizer = tokenizerOpt.get
+        val tokenizer          = tokenizerOpt.get
         val systemPromptTokens = tokenizer.encode(systemPrompt).size
         // Calculate compression ratio for summary
-        val originalTokens = usage.promptTokens - systemPromptTokens
-        val outputTokens = usage.completionTokens
+        val originalTokens   = usage.promptTokens - systemPromptTokens
+        val outputTokens     = usage.completionTokens
         val compressionRatio = outputTokens.toDouble / originalTokens.toDouble
         // add compression in words and in characters as well
         println(f"Compression ratio: ${compressionRatio * 100}%.1f%% (lower is better)")

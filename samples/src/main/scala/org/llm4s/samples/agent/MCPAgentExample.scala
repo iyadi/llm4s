@@ -14,7 +14,7 @@ import scala.util.Using
 /**
  * Example demonstrating agent execution with MCP tool integration
  *
- * This example shows how an LLM agent can seamlessly use both local tools 
+ * This example shows how an LLM agent can seamlessly use both local tools
  * and remote MCP tools with automatic fallback between transport protocols.
  *
  * Start the MCPServer first: sbt "samples/runMain org.llm4s.samples.mcp.DemonstrationMCPServer"
@@ -22,13 +22,13 @@ import scala.util.Using
  */
 object MCPAgentExample {
   private val logger = LoggerFactory.getLogger(getClass)
-  
+
   def main(args: Array[String]): Unit = {
     logger.info("🚀 MCP Agent Example - Agent with MCP Tools")
-    
+
     // Set up MCP server configuration (automatically tries latest protocol with fallback)
     val serverConfig = MCPServerConfig.streamableHTTP(
-      name = "mcp-tools-server", 
+      name = "mcp-tools-server",
       url = "http://localhost:8080/mcp",
       timeout = 30.seconds
     )
@@ -39,8 +39,8 @@ object MCPAgentExample {
       client <- LLMConnect.getClient(config)
       agent = new Agent(client)
       query = "Convert 100 USD to EUR and then check the weather in Paris"
-      _ =logger.info(s"🎯 Running agent query: $query")
-      agentState <- Using.resource(new MCPToolRegistry(Seq(serverConfig), Seq(WeatherTool.tool),10.minutes)){
+      _     = logger.info(s"🎯 Running agent query: $query")
+      agentState <- Using.resource(new MCPToolRegistry(Seq(serverConfig), Seq(WeatherTool.tool), 10.minutes)) {
         mcpRegistry =>
           val allTools = mcpRegistry.getAllTools
           logger.info(s"📦 Available tools (${allTools.size} total):")
@@ -51,7 +51,7 @@ object MCPAgentExample {
           agent.run(query, mcpRegistry, Some(5), Some("mcp-agent-example.md"), None)
       }
     } yield agentState
-    
+
     val duration = System.currentTimeMillis() - startTime
     agentState match {
       case Right(finalState) =>

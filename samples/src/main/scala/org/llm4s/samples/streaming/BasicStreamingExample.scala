@@ -6,7 +6,7 @@ import org.llm4s.llmconnect.model._
 
 /**
  * Basic example of using the streaming API to get real-time responses from LLMs.
- * 
+ *
  * To run this example:
  * 1. Set your LLM_MODEL environment variable (e.g., "openai/gpt-4", "anthropic/claude-3-sonnet")
  * 2. Set your API key (OPENAI_API_KEY or ANTHROPIC_API_KEY)
@@ -18,7 +18,7 @@ object BasicStreamingExample {
     println("=== LLM4S Basic Streaming Example ===")
     println(s"Using model: $model")
     println("=" * 50 + "\n")
-    
+
     // Create a conversation
     val conversation = Conversation(
       Seq(
@@ -27,13 +27,13 @@ object BasicStreamingExample {
       )
     )
     var firstChunkTime: Option[Long] = None
-    var chunkCount = 0
+    var chunkCount                   = 0
     // Get a client using environment variables (Result-first)
     val result = for {
       reader <- LLMConfig()
       client <- LLMConnect.getClient(reader)
       startTime = System.currentTimeMillis()
-      completion  <- client.streamComplete(
+      completion <- client.streamComplete(
         conversation,
         options = CompletionOptions(temperature = 0.7),
         onChunk = chunk => {
@@ -49,14 +49,10 @@ object BasicStreamingExample {
           chunkCount += 1
 
           // Show when we receive tool calls (if any)
-          chunk.toolCall.foreach { toolCall =>
-            println(s"\n[Tool Call: ${toolCall.name}]")
-          }
+          chunk.toolCall.foreach(toolCall => println(s"\n[Tool Call: ${toolCall.name}]"))
 
           // Show finish reason
-          chunk.finishReason.foreach { reason =>
-            println(s"\n[Stream finished: $reason]")
-          }
+          chunk.finishReason.foreach(reason => println(s"\n[Stream finished: $reason]"))
         }
       )
       _ = {
@@ -80,7 +76,7 @@ object BasicStreamingExample {
         }
       }
     } yield ()
-    
+
     result.fold(err => println(s"Error: ${err.formatted}"), identity)
     println("\n=== Example Complete ===")
   }

@@ -39,8 +39,8 @@ object StreamingExample {
     )
 
     var fullContent = ""
-    var chunkCount = 0
-    val startTime = System.currentTimeMillis()
+    var chunkCount  = 0
+    val startTime   = System.currentTimeMillis()
     val result = for {
       reader <- LLMConfig()
       client <- LLMConnect.getClient(reader)
@@ -49,8 +49,7 @@ object StreamingExample {
         println("Receiving chunks as they arrive:")
         println("-" * 40)
       }
-      completion <- {
-
+      completion <-
         client.streamComplete(
           conversation,
           CompletionOptions(),
@@ -70,9 +69,8 @@ object StreamingExample {
             chunk.finishReason.foreach(reason => println(s"\n\n[Stream finished: $reason]"))
           }
         )
-      }
       _ = {
-        val endTime = System.currentTimeMillis()
+        val endTime  = System.currentTimeMillis()
         val duration = endTime - startTime
 
         println("\n" + "-" * 40)

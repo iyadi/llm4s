@@ -7,12 +7,12 @@ import org.llm4s.llmconnect.streaming.StreamingAccumulator
 
 /**
  * Example showing streaming with progress indicators and accumulation.
- * 
+ *
  * This example demonstrates:
  * - Progress indicators during streaming
  * - Using StreamingAccumulator to collect the response
  * - Custom callbacks for different streaming events
- * 
+ *
  * To run: sbt "samples/runMain org.llm4s.samples.streaming.StreamingWithProgressExample"
  */
 object StreamingWithProgressExample {
@@ -21,7 +21,7 @@ object StreamingWithProgressExample {
     println("=== LLM4S Streaming with Progress Example ===")
     println(s"Using model: $model")
     println("=" * 50 + "\n")
-    
+
     // Create a conversation that will generate a longer response
     val conversation = Conversation(
       Seq(
@@ -36,16 +36,16 @@ object StreamingWithProgressExample {
         """.stripMargin.trim)
       )
     )
-    var chunkCount = 0
-    var charCount = 0
+    var chunkCount   = 0
+    var charCount    = 0
     var spinnerIndex = 0
     // Get a client (Result-first)
     val result = for {
       reader <- LLMConfig()
       client <- LLMConnect.getClient(reader)
       accumulator = StreamingAccumulator.create()
-      startTime = System.currentTimeMillis()
-      spinner = Array('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
+      startTime   = System.currentTimeMillis()
+      spinner     = Array('⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏')
       _ = {
         println("🚀 Starting stream...")
         println("=" * 60)
@@ -80,7 +80,7 @@ object StreamingWithProgressExample {
       )
       _ = {
         println("\n✅ Stream completed successfully!\n")
-        val totalTime = System.currentTimeMillis() - startTime
+        val totalTime    = System.currentTimeMillis() - startTime
         val avgChunkTime = if (chunkCount > 0) totalTime.toDouble / chunkCount else 0
         // Show detailed statistics
         println("📊 Streaming Performance:")
@@ -92,8 +92,8 @@ object StreamingWithProgressExample {
 
         // Show accumulated content stats
         val fullContent = accumulator.getCurrentContent
-        val wordCount = fullContent.split("\\s+").length
-        val lineCount = fullContent.split("\n").length
+        val wordCount   = fullContent.split("\\s+").length
+        val lineCount   = fullContent.split("\n").length
 
         println(s"\n📝 Content Statistics:")
         println(s"  Words:             $wordCount")

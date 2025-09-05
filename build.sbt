@@ -15,11 +15,11 @@ val scala3CompilerOptions = Seq(
   "-source:3.3",
   "-Wsafe-init",
   "-deprecation",
-  "-Wunused:all"
+  "-Wunused:all",
+  "-Werror"
 )
 val scala2CompilerOptions = Seq(
-  // "-Xfatal-warnings", Commented to allow deprecation warnings
-  // "-Wconf:deprecation:w", // suppress deprecation warnings - Commented to allow deprecation warnings
+  "-Xfatal-warnings",
   "-feature",
   "-unchecked",
   "-deprecation",
@@ -115,6 +115,7 @@ def scalacOptionsForVersion(scalaVersion: String): Seq[String] =
 
 lazy val commonSettings = Seq(
   Compile / scalacOptions := scalacOptionsForVersion(scalaVersion.value),
+  Test / scalacOptions    := scalacOptionsForVersion(scalaVersion.value),
   Compile / packageDoc / publishArtifact := !isSnapshot.value,
   Compile / unmanagedSourceDirectories ++= {
     val sourceDir = (Compile / sourceDirectory).value

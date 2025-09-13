@@ -60,10 +60,11 @@ object HistoryDigestExample {
   }
 
   private def getConfiguration(): Result[(String, ConfigReader)] = {
-    val config = LLMConfig()
-    val modelName = config.getOrElse("LLM_MODEL", "openai/gpt-4o")
-    logger.info(s"Using model: $modelName")
-    Right((modelName, config))
+    for {
+      config <- LLMConfig()
+      modelName = config.getOrElse("LLM_MODEL", "openai/gpt-4o")
+      _ = logger.info(s"Using model: $modelName")
+    } yield (modelName, config)
   }
 
   // Removed createClient - not needed for history digest demo

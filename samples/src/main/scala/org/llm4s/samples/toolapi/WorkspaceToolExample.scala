@@ -69,30 +69,29 @@ object WorkspaceToolExample {
 
         // Test with GPT-4o
         logger.info(s"Testing with OpenAI's $gpt4oModelName...")
-        val openaiConfig = OpenAIConfig(
-          apiKey = config.getOrElse("OPENAI_API_KEY", ""),
-          model = gpt4oModelName,
-          organization = None,
-          baseUrl = "https://api.openai.com/v1"
-        )
-
-        val openaiClient = LLMConnect
-          .getClient(LLMProvider.OpenAI, openaiConfig)
-          .fold(e => throw new IllegalArgumentException(e.message), identity)
-        testLLMWithTools(openaiClient, toolRegistry, prompt)
+        val openaiClientRes = for {
+          cfg    <- OpenAIConfig(gpt4oModelName, config)
+          client <- LLMConnect.getClient(LLMProvider.OpenAI, cfg)
+        } yield client
+        openaiClientRes match {
+          case Right(openaiClient) =>
+            testLLMWithTools(openaiClient, toolRegistry, prompt)
+          case Left(err) =>
+            logger.error(s"OpenAI client setup failed: ${err.formatted}")
+        }
 
         // Test with Claude
         logger.info(s"Testing with Anthropic's $sonnetModelName...")
-        val anthropicConfig = AnthropicConfig(
-          apiKey = config.getOrElse("ANTHROPIC_API_KEY", ""),
-          model = sonnetModelName,
-          baseUrl = "https://api.anthropic.com"
-        )
-
-        val anthropicClient = LLMConnect
-          .getClient(LLMProvider.Anthropic, anthropicConfig)
-          .fold(e => throw new IllegalArgumentException(e.message), identity)
-        testLLMWithTools(anthropicClient, toolRegistry, prompt)
+        val anthropicClientRes = for {
+          cfg    <- AnthropicConfig(sonnetModelName, config)
+          client <- LLMConnect.getClient(LLMProvider.Anthropic, cfg)
+        } yield client
+        anthropicClientRes match {
+          case Right(anthropicClient) =>
+            testLLMWithTools(anthropicClient, toolRegistry, prompt)
+          case Left(err) =>
+            logger.error(s"Anthropic client setup failed: ${err.formatted}")
+        }
       } else {
         logger.error("Failed to start the workspace container")
       }

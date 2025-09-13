@@ -5,7 +5,7 @@ import org.llm4s.config.ConfigReader.LLMConfig
 import org.llm4s.context.{ ConversationTokenCounter, TokenWindow, ConversationWindow }
 import org.llm4s.context.tokens.TokenizerMapping
 import org.llm4s.types.{ TokenBudget, HeadroomPercent }
-import org.llm4s.llmconnect.LLM
+import org.llm4s.llmconnect.LLMConnect
 import org.llm4s.llmconnect.model._
 import org.llm4s.types.Result
 import org.slf4j.LoggerFactory
@@ -56,17 +56,18 @@ object TokenWindowExample {
   }
 
   private def getConfiguration(): Result[(String, ConfigReader)] = {
-    val config = LLMConfig()
-    val modelName = config.getOrElse("LLM_MODEL", "openai/gpt-4o")
-    logger.info(s"Configured model: $modelName")
-    Right((modelName, config))
+    for {
+      config <- LLMConfig()
+      modelName = config.getOrElse("LLM_MODEL", "openai/gpt-4o")
+      _ = logger.info(s"Configured model: $modelName")
+    } yield (modelName, config)
   }
 
-  private def createClient(config: ConfigReader): Result[org.llm4s.llmconnect.LLMClient] = {
-    val client = LLM.client(config)
-    logger.info("LLM Client created successfully")
-    Right(client)
-  }
+  private def createClient(config: ConfigReader): Result[org.llm4s.llmconnect.LLMClient] =
+    LLMConnect.getClient(config).map { client =>
+      logger.info("LLM Client created successfully")
+      client
+    }
 
   private def createTokenCounter(modelName: String): Result[ConversationTokenCounter] =
     ConversationTokenCounter.forModel(modelName).map { counter =>

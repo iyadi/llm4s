@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory
  * ```
  */
 object TokenWindowExample {
+  should not compile
   private val logger = LoggerFactory.getLogger(getClass)
 
   def main(args: Array[String]): Unit = {

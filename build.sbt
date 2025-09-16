@@ -163,6 +163,8 @@ lazy val root = (project in file("."))
     commonSettings,
     // Enable scalafix on compile here (has ConfigReader)
     scalafixOnCompile := true,
+    // Ensure consistent enhanced messages in root tests
+    Test / fork := true,
     // Library project: do not expose or auto-discover mains
     Compile / mainClass := None,
     Compile / discoveredMainClasses := Seq.empty,
@@ -273,6 +275,7 @@ lazy val crossTestScala2 = (project in file("crosstest/scala2"))
   .settings(
     name         := "crosstest-scala2",
     scalaVersion := scala213,
+    Test / fork  := true,
     libraryDependencies ++= crossLibDependencies.value ++ Seq(
       "org.llm4s" %% "llm4s" % (ThisBuild / version).value % Test
     )
@@ -284,6 +287,7 @@ lazy val crossTestScala3 = (project in file("crosstest/scala3"))
   .settings(
     name         := "crosstest-scala3",
     scalaVersion := scala3,
+    Test / fork  := true,
     resolvers   += Resolver.mavenLocal,
     resolvers   += Resolver.defaultLocal,
     libraryDependencies ++= crossLibDependencies.value,

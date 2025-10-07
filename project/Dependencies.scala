@@ -94,7 +94,8 @@ object Common {
     "-Wunused:locals",
     "-Wunused:patvars",
     "-Wunused:params",
-    "-Wunused:linted"
+    "-Wunused:linted",
+    "-Ytasty-reader"
   )
 
   // ---- scalacOptions helper ----

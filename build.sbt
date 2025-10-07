@@ -66,7 +66,7 @@ addCommandAlias("buildAll", ";clean;+compile;+test")
 addCommandAlias("publishAll", ";clean;+publish")
 addCommandAlias(
   "testAll",
-  ";test;+publishLocal;++2.13.16 crossTestScala2/test;++3.7.1 crossTestScala3/test"
+  ";test;++2.13.16 crossTestScala2/test;++3.7.1 crossTestScala3/test"
 )
 addCommandAlias(
   "cleanTestAll",
@@ -78,12 +78,13 @@ addCommandAlias(
 )
 addCommandAlias("compileAll", ";+compile")
 addCommandAlias("testCross", ";++2.13.16 crossTestScala2/test;++3.7.1 crossTestScala3/test")
-addCommandAlias("fullCrossTest", ";clean ;crossTestScala2/clean ;crossTestScala3/clean ;+publishLocal ;testCross")
+addCommandAlias("fullCrossTest", ";clean ;crossTestScala2/clean ;crossTestScala3/clean ;testCross")
 
 
 
 // ---- shared settings ----
 lazy val commonSettings = Seq(
+  crossScalaVersions := Seq(scala213, scala3),
   Compile / scalacOptions := scalacOptionsForVersion(scalaVersion.value),
   Test / scalacOptions    := scalacOptionsForVersion(scalaVersion.value),
   semanticdbEnabled       := CrossVersion.partialVersion(scalaVersion.value).exists(_._1 == 3),
@@ -211,22 +212,6 @@ lazy val workspaceSamples = (project in file("modules/workspace/workspaceSamples
     publish / skip := true
   )
 
-lazy val crossLibDependencies = Def.setting {
-  Seq(
-    Deps.scalatest % Test,
-    Deps.sttp,
-    Deps.ujson,
-    Deps.pdfbox,
-    Deps.poi,
-    Deps.tika,
-    Deps.requests,
-    Deps.jsoup,
-    Deps.postgres,
-    Deps.config,
-    Deps.hikariCP
-  )
-}
-
 lazy val crossTestScala2 = (project in file("modules/crosstest/scala2"))
   .dependsOn(core)
   .settings(
@@ -235,7 +220,16 @@ lazy val crossTestScala2 = (project in file("modules/crosstest/scala2"))
     Test / fork  := true,
     resolvers   += Resolver.mavenLocal,
     resolvers   += Resolver.defaultLocal,
-    libraryDependencies ++= crossLibDependencies.value
+    scalacOptions ++= scala2CompilerOptions,
+    libraryDependencies ++= Seq(
+      Deps.scalatest % Test,
+      Deps.ujson
+    ),
+    excludeDependencies ++= Seq(
+      ExclusionRule(organization = "com.lihaoyi", name = "geny_3"),
+      ExclusionRule(organization = "com.lihaoyi", name = "ujson_3"),
+      ExclusionRule(organization = "com.lihaoyi", name = "upickle-core_3")
+    )
   )
 
 lazy val crossTestScala3 = (project in file("modules/crosstest/scala3"))
@@ -246,8 +240,10 @@ lazy val crossTestScala3 = (project in file("modules/crosstest/scala3"))
     Test / fork  := true,
     resolvers   += Resolver.mavenLocal,
     resolvers   += Resolver.defaultLocal,
-    libraryDependencies ++= crossLibDependencies.value,
-    scalacOptions ++= scala3CompilerOptions
+    scalacOptions ++= scala3CompilerOptions,
+    libraryDependencies ++= Seq(
+      Deps.scalatest % Test
+    )
   )
 
 mimaPreviousArtifacts := Set(

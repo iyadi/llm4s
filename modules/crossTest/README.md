@@ -22,7 +22,7 @@ Testing against published JARs rather than target directories offers several adv
 
 ### Basic Cross-Testing
 ```scala
-addCommandAlias("testCross", ";crossTestScala2/test;crossTestScala3/test")
+addCommandAlias("testCross", ";++2.13.16 crossTestScala2/test;++3.7.1 crossTestScala3/test")
 ```
 This command:
 - Runs tests for both Scala 2 and Scala 3 projects
@@ -38,18 +38,6 @@ This command performs a complete verification cycle:
 2. Cleans individual cross-test projects
 3. Publishes all versions locally
 4. Runs all cross-version tests
-
-## Test Implementation Guidelines
-
-When writing cross-version tests:
-1. Always depend on the published artifacts:
-   ```scala
-   libraryDependencies += "org.llm4s" %% "0.1.0-SNAPSHOT" % version
-   ```
-2. Test both API compatibility and functionality
-3. Include version-specific features where applicable
-4. Verify binary compatibility
-5. Test integration scenarios
 
 ## Common Issues and Solutions
 

@@ -1,7 +1,7 @@
 Test Coverage (scoverage)
 
 Overview
-- Uses `sbt-scoverage` to measure line and branch coverage for Scala 2.13 and Scala 3 builds.
+- Uses `sbt-scoverage` to measure line and branch coverage for Scala 3 builds.
 - Global defaults: minimum 80% coverage, build fails if below.
 
 How To Run Locally

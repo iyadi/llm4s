@@ -272,7 +272,7 @@ All tools have comprehensive tests:
 - **ShellToolsSpec**: Tests for shell execution with allowlist, timeout, truncation
 - **BuiltinToolsSpec**: Tests for tool bundle factory methods
 
-Total: 73 tests across 5 test suites, all passing on Scala 2.13 and 3.x.
+Total: 73 tests across 5 test suites, all passing on Scala 3.
 
 ## Samples
 
@@ -299,4 +299,4 @@ Two sample applications demonstrate built-in tools usage:
 - [x] Web search tool (DuckDuckGo)
 - [x] Documentation for each tool
 - [x] Sample applications demonstrating usage
-- [x] All tests passing on Scala 2.13 and 3.x
+- [x] All tests passing on Scala 3

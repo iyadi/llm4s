@@ -281,7 +281,6 @@ Explore **69 working examples** covering all features:
 | Scala Version | JDK Version | Status |
 |---------------|-------------|--------|
 | 3.7.x | 21, 17 | ✅ Fully Supported |
-| 2.13.x | 21, 17 | ✅ Fully Supported |
 
 ### LLM Provider Support
 

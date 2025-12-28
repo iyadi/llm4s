@@ -6,16 +6,16 @@
 - Multi-provider support (OpenAI, Anthropic, Azure, Ollama)
 - Type-safe design with `Result[A]` error handling
 - Agent framework with tools, guardrails, handoffs, and memory
-- Cross-compilation for Scala 2.13 and 3.x
+- Scala 3
 
-**Tech Stack:** Scala 2.13/3.x, SBT, ScalaTest, Cats, uPickle, Docker
+**Tech Stack:** Scala 3, SBT, ScalaTest, Cats, uPickle, Docker
 
 ## Core Principles
 
 1. **Use `Result[A]` instead of exceptions** - `type Result[+A] = Either[LLMError, A]`
 2. **Use `Llm4sConfig` at the app edge** - Never use `sys.env`, `System.getenv`, or `ConfigSource.default` directly in core code
 3. **Use type-safe newtypes** - `ModelName`, `ApiKey`, `ConversationId` etc.
-4. **Cross-version compatibility** - Test with `sbt +test`
+4. **Tests pass** - Run `sbt test`
 
 ## Repository Structure
 
@@ -25,7 +25,6 @@ llm4s/
 │   ├── core/            # Core library (published)
 │   ├── samples/         # Usage examples
 │   ├── workspace/       # Containerized execution
-│   └── crossTest/       # Cross-version tests
 ├── docs/                # Documentation
 ├── project/             # SBT config
 └── build.sbt
@@ -42,8 +41,8 @@ llm4s/
 ## Common Commands
 
 ```bash
-sbt buildAll           # Build all Scala versions
-sbt +test              # Test all versions
+sbt buildAll           # Clean, compile, test
+sbt test               # Run tests
 sbt scalafmtAll        # Format code
 sbt cov                # Run coverage
 sbt "samples/runMain org.llm4s.samples.basic.BasicLLMCallingExample"

@@ -124,8 +124,8 @@ To ensure code quality, we use a Git pre-commit hook that automatically checks c
 
 # The hook will automatically:
 # - Check code formatting with scalafmt
-# - Compile code for both Scala 2.13 and 3
-# - Run tests for both Scala versions
+# - Compile
+# - Run tests
 
 # To skip the hook temporarily (not recommended):
 # git commit --no-verify
@@ -141,9 +141,6 @@ To ensure code quality, we use a Git pre-commit hook that automatically checks c
 
 ```bash
 sbt compile
-
-# For all supported Scala versions (2.13 and 3)
-sbt +compile
 
 # Build and test all versions
 sbt buildAll
@@ -190,50 +187,7 @@ sbt "samples/runMain org.llm4s.samples.basic.BasicLLMCallingExample"
 ```bash
 sbt docker:publishLocal
 sbt "samples/runMain org.llm4s.samples.workspace.ContainerisedWorkspaceDemo"
-
-# Using Scala 2.13
-sbt ++2.13.14 "samples/runMain org.llm4s.samples.basic.BasicLLMCallingExample"
 ```
-
-### Cross Compilation
-
-LLM4S supports both Scala 2.13 and Scala 3.3. The codebase is set up to handle version-specific code through source directories:
-
-- `src/main/scala` - Common code for both Scala 2.13 and 3.3
-- `src/main/scala-2.13` - Scala 2.13 specific code
-- `src/main/scala-3` - Scala 3 specific code
-
-When you need to use version-specific features, place the code in the appropriate directory.
-
-We've added convenient aliases for cross-compilation:
-
-```bash
-# Compile for all Scala versions
-sbt compileAll
-
-# Test all Scala versions
-sbt testAll
-
-# Both compile and test
-sbt buildAll
-
-# Publish for all versions
-sbt publishAll
-```
-
-### Cross-Compilation Testing
-
-We use specialized test projects to verify cross-version compatibility against the published artifacts. These tests ensure that the library works correctly across different Scala versions by testing against actual published JARs rather than local target directories.
-
-```bash
-# Run tests for both Scala 2 and 3 against published JARs
-sbt testCross
-
-# Full clean, publish, and test verification
-sbt fullCrossTest
-```
-
-> **Note:** For detailed information about our cross-testing strategy and setup, see [crossTest/README.md](crossTest/README.md)
 
 ## Roadmap
 
@@ -488,7 +442,7 @@ LLM4S uses GitHub Actions for continuous integration to ensure code quality and 
 Our unified CI workflow runs on every push and pull request to main/master branches:
 
 - **Quick Checks**: Fast-failing checks for code formatting and compilation
-- **Cross-Platform Testing**: Tests run on Ubuntu and Windows with Scala 2.13.16 and 3.7.1
+- **Cross-Platform Testing**: Tests run on Ubuntu and Windows with Scala 3.7.1
 - **Template Validation**: Verifies the g8 template works correctly
 - **Caching**: Optimized caching strategy with Coursier for faster builds
 
@@ -520,10 +474,10 @@ You can run the same checks locally before pushing:
 sbt scalafmtCheckAll
 
 # Compile all Scala versions
-sbt +compile
+sbt compile
 
 # Run all tests
-sbt +test
+sbt test
 
 # Full build (compile + test)
 sbt buildAll

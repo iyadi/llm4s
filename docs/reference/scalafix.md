@@ -41,5 +41,5 @@ Files Changed
 - `build.sbt`: Enables `scalafixOnCompile` only on `root` and `samples`.
 
 Notes
-- The rule is syntactic and works for both Scala 2.13 and Scala 3 without SemanticDB.
+- The rule is syntactic and works for Scala 3 without SemanticDB.
 - If you see false negatives for unusual code paths, please open an issue with a minimal repro so we can extend the rule.

@@ -1,12 +1,12 @@
 # Repository Guidelines
 
 ## Project Structure & Modules
-- Core framework lives in `modules/core` (agents, LLM connectors, guardrails, tracing). Workspace support sits in `modules/workspace` (runner/client/shared). Cross-version checks for Scala 2.13/3.3 live in `modules/crossTest`, and runnable demos are in `modules/samples`. `docs/` stores documentation; `hooks/` provides the pre-commit installer. Sources use `src/main/scala` plus `src/main/scala-2.13` for version-specific code. See also [szork](https://github.com/llm4s/szork) - a demo game showcasing LLM4S agents.
+- Core framework lives in `modules/core` (agents, LLM connectors, guardrails, tracing). Workspace support sits in `modules/workspace` (runner/client/shared), and runnable demos are in `modules/samples`. `docs/` stores documentation; `hooks/` provides the pre-commit installer.
 
 ## Build, Test, and Development Commands
-- Compile: `sbt compile` or `sbt +compile` (cross-build). Run examples via `sbt "samples/runMain org.llm4s.samples.basic.BasicLLMCallingExample"`.
-- Tests: `sbt test` for the active Scala, `sbt +test` for both, or module-specific runs (e.g., `sbt core/test`).
-- Pipeline: `sbt buildAll` cross-compiles and tests; slower but mirrors CI.
+- Compile: `sbt compile`. Run examples via `sbt "samples/runMain org.llm4s.samples.basic.BasicLLMCallingExample"`.
+- Tests: `sbt test` or module-specific runs (e.g., `sbt core/test`).
+- Pipeline: `sbt buildAll` cleans, compiles, and tests.
 - Formatting/linting: `sbt scalafmtAll` is required; `sbt scalafixAll` is available for extra hygiene.
 - Dev hook: `./hooks/install.sh` installs a pre-commit that runs scalafmt, compile, and tests.
 
@@ -23,8 +23,7 @@
 ## Testing Guidelines
 - Scalatest is primary; Scalamock is available. Integration suites often mix in `ScalaFutures` or `BeforeAndAfterAll`.
 - Place tests under `src/test/scala`, mirroring the package of the code under test.
-- Add cross-version specs in `modules/crossTest/scala2` and `modules/crossTest/scala3` when compiler behavior differs.
-- Typical flow: `sbt test` for quick checks; `sbt +test` or `sbt buildAll` before PR. Coverage (when needed): `sbt coverage test coverageReport`.
+- Typical flow: `sbt test` for quick checks; `sbt buildAll` before PR. Coverage (when needed): `sbt coverage test coverageReport`.
 
 ## Commit & Pull Request Guidelines
 - Use short, imperative commit subjects (e.g., “Add centralized model metadata system”) and include issue/PR refs when relevant.

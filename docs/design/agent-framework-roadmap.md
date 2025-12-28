@@ -33,7 +33,7 @@
 - ✅ Result-based error handling
 - ✅ Markdown trace logging
 - ✅ MCP (Model Context Protocol) integration
-- ✅ Cross-version Scala support (2.13 & 3.x)
+- ✅ Scala 3
 
 **OpenAI Agents SDK** offers additional capabilities for production workflows:
 - Advanced session management with automatic conversation history
@@ -149,7 +149,7 @@ To properly position llm4s, we compare it against three leading Python agent fra
 | **Unique Features** |
 | Workspace isolation | ✅ Docker | ❌ | ❌ | ❌ |
 | MCP integration | ✅ | ⚠️ Planned | ✅ | ✅ Bidirectional |
-| Cross-version support | ✅ 2.13/3.x | N/A | N/A | N/A |
+| Scala support | ✅ Scala 3 | N/A | N/A | N/A |
 | Role-based agents | ❌ | ❌ | ❌ | ✅ ✅ |
 | Hierarchical mgmt | ⚠️ Via DAG | ❌ | ❌ | ✅ ✅ |
 | **Memory & Knowledge** |
@@ -567,7 +567,7 @@ state2.conversation.messageCount  // 2 ✓ As expected
 | **Temperature Control** | ✅ `CompletionOptions` | ✅ `ModelSettings` | Similar |
 | **Reasoning Modes** | ✅ ReasoningEffort (Phase 4.1) | ✅ none/low/medium/high | **PARITY** (Phase 4.1) |
 | **Extended Thinking** | ✅ budgetTokens (Anthropic) | ⚠️ OpenAI models only | **llm4s advantage** |
-| **Cross-version Support** | ✅ Scala 2.13 & 3.x | N/A (Python-only) | llm4s advantage |
+| **Scala Support** | ✅ Scala 3 | N/A (Python-only) | llm4s advantage |
 
 ---
 
@@ -889,9 +889,8 @@ class FactualityGuardrail(context: String) extends LLMGuardrail {
    - Native Model Context Protocol support
    - Standardized tool sharing across providers
 
-5. **Cross-version Support** ⭐⭐⭐
-   - Scala 2.13 and 3.x compatibility
-   - Valuable for enterprise Scala users
+5. **Scala Support** ⭐⭐⭐
+   - Scala 3
 
 6. **Configuration System** ⭐⭐⭐
    - Type-safe `ConfigReader`
@@ -1780,7 +1779,7 @@ for {
 **Backward Compatibility:**
 - Add new features as optional parameters
 - Provide migration guides for breaking changes
-- Maintain cross-version Scala support
+- Maintain Scala 3 support
 
 #### 5. Modularity
 
@@ -1962,7 +1961,7 @@ After closing gaps, llm4s will offer a **unique combination** not found in any o
 
 **Production Features:**
 - ✅ Workspace isolation for secure tool execution
-- ✅ Cross-version Scala support (2.13 & 3.x)
+- ✅ Scala 3
 - ✅ MCP integration for standardized tool protocols
 
 **Developer Experience:**

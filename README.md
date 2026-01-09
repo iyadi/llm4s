@@ -126,8 +126,8 @@ To ensure code quality, we use a Git pre-commit hook that automatically checks c
 
 # The hook will automatically:
 # - Check code formatting with scalafmt
-# - Compile code for both Scala 2.13 and 3
-# - Run tests for both Scala versions
+# - Compile
+# - Run tests
 
 # To skip the hook temporarily (not recommended):
 # git commit --no-verify
@@ -143,9 +143,6 @@ To ensure code quality, we use a Git pre-commit hook that automatically checks c
 
 ```bash
 sbt compile
-
-# For all supported Scala versions (2.13 and 3)
-sbt +compile
 
 # Build and test all versions
 sbt buildAll
@@ -447,7 +444,7 @@ LLM4S uses GitHub Actions for continuous integration to ensure code quality and 
 Our unified CI workflow runs on every push and pull request to main/master branches:
 
 - **Quick Checks**: Fast-failing checks for code formatting and compilation
-- **Cross-Platform Testing**: Tests run on Ubuntu and Windows with Scala 2.13.16 and 3.7.1
+- **Cross-Platform Testing**: Tests run on Ubuntu and Windows with Scala 3.7.1
 - **Template Validation**: Verifies the g8 template works correctly
 - **Caching**: Optimized caching strategy with Coursier for faster builds
 
@@ -479,10 +476,10 @@ You can run the same checks locally before pushing:
 sbt scalafmtCheckAll
 
 # Compile all Scala versions
-sbt +compile
+sbt compile
 
 # Run all tests
-sbt +test
+sbt test
 
 # Full build (compile + test)
 sbt buildAll

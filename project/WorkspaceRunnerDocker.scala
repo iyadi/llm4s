@@ -27,9 +27,9 @@ object WorkspaceRunnerDocker {
     Cmd("RUN", "curl -s 'https://get.sdkman.io' | bash"),
     Cmd(
       "RUN",
-      // Install both Scala versions used by the repo so `scala` tooling exists in the container
-      // when needed. Consider a slimmer image in future.
-      "bash -c 'source /root/.sdkman/bin/sdkman-init.sh && sdk install scala 3.3.3 && sdk install scala 2.13.14'"
+      // Install Scala so `scala` tooling exists in the container when needed.
+      // Consider a slimmer image in future.
+      "bash -c 'source /root/.sdkman/bin/sdkman-init.sh && sdk install scala 3.7.1'"
     ),
     Cmd("ENV", "PATH=/root/.sdkman/candidates/scala/current/bin:$PATH")
   )

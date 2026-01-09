@@ -21,16 +21,16 @@ if ! sbt scalafmtCheckAll; then
     exit 1
 fi
 
-# Run compilation for all Scala versions
-echo "Compiling for all Scala versions..."
-if ! sbt +compile; then
+# Run compilation
+echo "Compiling..."
+if ! sbt compile; then
     echo "Error: Compilation failed!"
     exit 1
 fi
 
-# Run tests for all Scala versions
-echo "Running tests for all Scala versions..."
-if ! sbt +test; then
+# Run tests
+echo "Running tests..."
+if ! sbt test; then
     echo "Error: Tests failed!"
     exit 1
 fi

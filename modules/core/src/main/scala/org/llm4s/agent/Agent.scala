@@ -20,7 +20,7 @@ import scala.util.{ Failure, Success, Try }
 
 /**
  * Result type for handoff tool invocations.
- * This is defined at module level to work around Scala 2.13 upickle macro limitations (SI-7567).
+ * This is defined at module level to work around upickle macro limitations (SI-7567).
  */
 private[agent] case class HandoffResult(handoff_requested: Boolean, handoff_id: String, reason: String)
 

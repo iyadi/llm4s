@@ -66,9 +66,9 @@ val providerCfg = Llm4sConfig.provider()
 val key = sys.env.get("API_KEY")
 ```
 
-## Cross-Compilation
+## Scala Version
 
-The framework supports both Scala 2.13 and Scala 3.x through cross-compilation. Test with:
+LLM4S is Scala 3-only. Test with:
 ```bash
-sbt +test
+sbt test
 ```

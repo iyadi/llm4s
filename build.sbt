@@ -4,7 +4,6 @@ import Common._
 
 inThisBuild(
   List(
-    crossScalaVersions := List(scala213, scala3),
     scalaVersion       := scala3,
     organization       := "org.llm4s",
     organizationName   := "llm4s",
@@ -19,7 +18,6 @@ inThisBuild(
         url("https://github.com/rorygraves")
       )
     ),
-    // Publish to Sonatype Central Portal via staging
     ThisBuild / publishTo := {
       val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
       if (isSnapshot.value) Some("central-snapshots".at(centralSnapshots))
@@ -56,39 +54,24 @@ inThisBuild(
     ThisBuild / (coverageReport / aggregate) := false,
     // --- scalafix ---
     ThisBuild / scalafixDependencies += "ch.epfl.scala" %% "scalafix-rules" % "0.12.1",
-    ThisBuild / scalafixOnCompile := false  // Disabled for now
+    ThisBuild / scalafixOnCompile := true
   )
 )
 
 // ---- Handy aliases ----
 addCommandAlias("cov", ";clean;coverage;test;coverageAggregate;coverageReport;coverageOff")
 addCommandAlias("covReport", ";clean;coverage;test;coverageReport;coverageOff")
-addCommandAlias("buildAll", ";clean;+compile;+test")
-addCommandAlias("publishAll", ";clean;+publish")
-addCommandAlias(
-  "testAll",
-  ";test;++2.13.16 crossTestScala2/test;++3.7.1 crossTestScala3/test"
-)
-addCommandAlias(
-  "cleanTestAll",
-  ";clean;testAll"
-)
-addCommandAlias(
-  "cleanTestAllAndFormat",
-  ";scalafmtAll;cleanTestAll"
-)
-addCommandAlias("compileAll", ";+compile")
-addCommandAlias("testCross", ";++2.13.16 crossTestScala2/test;++3.7.1 crossTestScala3/test")
-addCommandAlias(
-  "fullCrossTest",
-  ";clean ;crossTestScala2/clean ;crossTestScala3/clean ;+publishLocal ;testCross"
-)
+addCommandAlias("buildAll", ";clean;compile;test")
+addCommandAlias("publishAll", ";clean;publish")
+addCommandAlias("testAll", ";test")
+addCommandAlias("cleanTestAll", ";clean;test")
+addCommandAlias("cleanTestAllAndFormat", ";scalafmtAll;clean;test")
+addCommandAlias("compileAll", ";compile")
 
 
 
 // ---- shared settings ----
 lazy val commonSettings = Seq(
-  crossScalaVersions := Seq(scala213, scala3),
   Compile / scalacOptions := scalacOptionsForVersion(scalaVersion.value),
   Test / scalacOptions    := scalacOptionsForVersion(scalaVersion.value),
   // Suppress ScalaDoc warnings from third-party libraries (e.g., ScalaTest)
@@ -247,39 +230,5 @@ lazy val traceOpentelemetry = (project in file("modules/trace-opentelemetry"))
       Deps.opentelemetryApi,
       Deps.opentelemetrySdk,
       Deps.opentelemetryExporterOtlp
-    )
-  )
-
-lazy val crossTestScala2 = (project in file("modules/crossTest/scala2"))
-  .dependsOn(core)
-  .settings(
-    name         := "crosstest-scala2",
-    scalaVersion := scala213,
-    Test / fork  := true,
-    resolvers   += Resolver.mavenLocal,
-    resolvers   += Resolver.defaultLocal,
-    scalacOptions ++= scala2CompilerOptions,
-    libraryDependencies ++= Seq(
-      Deps.scalatest % Test,
-      Deps.ujson
-    ),
-    excludeDependencies ++= Seq(
-      ExclusionRule(organization = "com.lihaoyi", name = "geny_3"),
-      ExclusionRule(organization = "com.lihaoyi", name = "ujson_3"),
-      ExclusionRule(organization = "com.lihaoyi", name = "upickle-core_3")
-    )
-  )
-
-lazy val crossTestScala3 = (project in file("modules/crossTest/scala3"))
-  .dependsOn(core)
-  .settings(
-    name         := "crosstest-scala3",
-    scalaVersion := scala3,
-    Test / fork  := true,
-    resolvers   += Resolver.mavenLocal,
-    resolvers   += Resolver.defaultLocal,
-    scalacOptions ++= scala3CompilerOptions,
-    libraryDependencies ++= Seq(
-      Deps.scalatest % Test
     )
   )

@@ -65,16 +65,11 @@ jobs:
 
       - name: Generate Scaladoc
         run: |
-          # Generate Scaladoc for both Scala versions
+          # Generate Scaladoc
           sbt "core/doc"
 
-          # Find the generated doc directory (use Scala 3 by default)
+          # Find the generated doc directory (Scala 3)
           SCALADOC_DIR=$(find modules/core/target -name "api" -type d | grep "scala-3" | head -1)
-
-          if [ -z "$SCALADOC_DIR" ]; then
-            # Fall back to Scala 2.13 if Scala 3 not found
-            SCALADOC_DIR=$(find modules/core/target -name "api" -type d | head -1)
-          fi
 
           echo "Scaladoc directory: $SCALADOC_DIR"
 

@@ -17,14 +17,14 @@ Features
 - ✅ Produces production-ready directory layout, CI hooks, formatting, and more
 - ✅ Uses [giter8][g8] project creation using `sbt new`,
 - ✅ Includes `Main.scala` + `PromptExecutor` for quick onboarding & getting started with [llm4s]
-- ✅ Supports [Scala 3] and [Scala 2]
+- ✅ Supports [Scala 3]
 
 Pre-configured prerequisites
 -----------
 - JDK 21+
 - SBT
 - OpenAI API key
-- [Scala 3][Scala 3] or [Scala 2][Scala 2]
+- [Scala 3][Scala 3]
 - [MUnit] for unit testing
 - [LLM4S SDK][llm4s]
 - Logging library [logback][logback], [scala-logging][scala-logging]
@@ -40,7 +40,7 @@ sbt new llm4s/llm4s.g8 \
 --package=org.llm4s.template \
 --version=0.1.0-SNAPSHOT \
 --llm4s_version=0.1.1 \
---scala_version=2.13.16 \
+--scala_version=3.7.1 \
 --munit_version=1.1.1 \
 --directory=org.llm4s.template \
 --force
@@ -57,7 +57,7 @@ sbt new file:///<absolute-path>/llm4s/llm4s.g8 \
 --package=org.llm4s.template \
 --version=0.1.0-SNAPSHOT \
 --llm4s_version=0.1.1 \
---scala_version=2.13.16 \
+--scala_version=3.7.1 \
 --munit_version=1.1.1 \
 --directory=org.llm4s.template \
 --force

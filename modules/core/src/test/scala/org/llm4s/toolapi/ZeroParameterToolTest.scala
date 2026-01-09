@@ -4,7 +4,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import upickle.default._
 
-// Result types defined at module level to avoid Scala 2.13 macroRW issues (SI-7567)
+// Result types defined at module level to avoid macroRW issues (SI-7567)
 case class InventoryResult(items: List[String], count: Int)
 case class StatusResult(health: Int, mana: Int)
 case class TimeResult(hour: Int, minute: Int, dayOfWeek: String)

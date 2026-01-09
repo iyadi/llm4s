@@ -37,8 +37,8 @@ jobs:
       - name: Check formatting
         run: sbt scalafmtCheckAll
       
-      - name: Compile all Scala versions
-        run: sbt +compile
+      - name: Compile
+        run: sbt compile
 
   # Code coverage (runs on one configuration to avoid duplication)
   coverage:
@@ -110,7 +110,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        scala: [2.13.16, 3.7.1]
         java: [21]
 
     runs-on: ${{ matrix.os }}
@@ -124,19 +123,31 @@ jobs:
           java-version: ${{ matrix.java }}
           cache: 'sbt'
       
+      - name: Cache Coursier
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/coursier
+            ~/.ivy2/cache
+            ~/.sbt
+          key: ${{ runner.os }}-sbt-${{ matrix.java }}-${{ hashFiles('**/build.sbt', '**/project/**.scala', '**/project/build.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-${{ matrix.java }}-
+            ${{ runner.os }}-sbt-
+      
       - uses: sbt/setup-sbt@v1
       
       - name: Run tests
-        run: sbt ++${{ matrix.scala }} test
+        run: sbt test
       
       - name: Upload test reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-reports-${{ matrix.os }}-scala-${{ matrix.scala }}
+          name: test-reports-${{ matrix.os }}
           path: |
             **/target/test-reports/
-            **/target/scala-${{ matrix.scala }}/test-reports/
+            **/target/scala-*/test-reports/
           retention-days: 5
 
   # All tests must pass

@@ -32,9 +32,6 @@ import scala.collection.mutable
  *
  * # Run the example
  * sbt "samples/runMain org.llm4s.samples.basic.AdvancedStreamingExample"
- *
- * # For Scala 2.13 compatibility:
- * sbt ++2.13.16 "samples/runMain org.llm4s.samples.basic.AdvancedStreamingExample"
  * ```
  *
  * Note: This example generates a short story, which works best with models

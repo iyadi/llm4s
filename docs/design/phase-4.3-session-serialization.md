@@ -170,11 +170,8 @@ Created comprehensive test file: `AgentStateSerializationSpec.scala`
 # Run serialization tests only
 sbt "core/testOnly *AgentStateSerializationSpec"
 
-# Run on both Scala versions
-sbt "+core/testOnly *AgentStateSerializationSpec"
-
 # Full test suite
-sbt "+test"
+sbt test
 ```
 
 ## Files Changed
@@ -243,7 +240,7 @@ for {
 - [x] Backward compatibility: old JSON without new fields loads correctly
 - [x] ToolMessage deserialization bug fixed
 - [x] Comprehensive test coverage (33 tests)
-- [x] Tests pass on both Scala 2.13 and Scala 3.7.1
+- [x] Tests pass on Scala 3.7.1
 - [x] Full test suite passes (771 tests)
 
 ## Related Documentation

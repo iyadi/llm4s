@@ -156,10 +156,9 @@ Currently: `0.1.0-SNAPSHOT` (pre-release)
 ## Scala Version Compatibility
 
 LLM4S supports:
-- **Scala 2.13.16**
 - **Scala 3.7.1**
 
-Cross-compilation ensures the same API on both versions.
+LLM4S is Scala 3-only.
 
 ## Migration Guides
 

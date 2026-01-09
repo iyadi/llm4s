@@ -180,7 +180,7 @@ sbt test
 sbt "testOnly org.llm4s.speech.*"
 
 # Cross-compile and test
-sbt +test
+sbt test
 ```
 
 ---

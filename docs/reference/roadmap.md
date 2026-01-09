@@ -46,7 +46,7 @@ The single source of truth for LLM4S project status and future direction.
 | **Infrastructure** | Type-Safe Configuration | ✅ Complete | [Configuration](/guide/configuration) |
 | | Result-Based Errors | ✅ Complete | [Error Handling](/guide/error-handling) |
 | | Langfuse Observability | ✅ Complete | [Observability](/guide/observability) |
-| | Cross-Version (2.13/3.x) | ✅ Complete | [Installation](/getting-started/installation) |
+| | Scala 3 Support | ✅ Complete | [Installation](/getting-started/installation) |
 
 ### Agent Framework
 

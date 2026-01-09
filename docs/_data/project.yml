@@ -11,7 +11,6 @@ latest_release: "0.1.16"
 
 # Supported versions
 scala_versions:
-  - "2.13.16"
   - "3.7.1"
 
 java_versions:

@@ -7,6 +7,9 @@ import pureconfig.ConfigSource
 
 object Llm4sConfig {
 
+  def stringOrElse(path: String, default: String): String =
+    ConfigSource.default.at(path).load[String].toOption.getOrElse(default)
+
   def provider(): Result[ProviderConfig] =
     org.llm4s.config.ProviderConfigLoader.load(ConfigSource.default)
 

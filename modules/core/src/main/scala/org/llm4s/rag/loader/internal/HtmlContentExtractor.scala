@@ -4,6 +4,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.{ Document => JsoupDocument, Element, TextNode }
 
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 /**
  * Utility for extracting clean text content and links from HTML.
@@ -77,13 +78,7 @@ object HtmlContentExtractor {
     val links       = extractLinks(doc, baseUrl)
 
     // Remove non-content elements
-    elementsToRemove.foreach { selector =>
-      try
-        doc.select(selector).remove()
-      catch {
-        case _: Exception => // Ignore selector errors
-      }
-    }
+    elementsToRemove.foreach(selector => Try(doc.select(selector).remove()).fold(_ => (), _ => ()))
 
     // Extract clean text content
     val content = extractContent(doc)

@@ -210,18 +210,18 @@ final case class WebCrawlerLoader(
         conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,*/*;q=0.8")
         conn.setInstanceFollowRedirects(true)
 
-        try {
+        Using.resource(new AutoCloseable {
+          override def close(): Unit = conn.disconnect()
+        }) { _ =>
           val code = conn.getResponseCode
 
           if (code >= 300 && code < 400) {
             // Handle redirect manually if needed
             val location = Option(conn.getHeaderField("Location"))
-            conn.disconnect()
             throw new RuntimeException(s"Redirect to: ${location.getOrElse("unknown")}")
           }
 
           if (code != 200) {
-            conn.disconnect()
             throw new RuntimeException(s"HTTP $code: ${conn.getResponseMessage}")
           }
 
@@ -235,12 +235,7 @@ final case class WebCrawlerLoader(
             "Last-Modified" -> Option(conn.getHeaderField("Last-Modified"))
           ).collect { case (k, Some(v)) => k -> v }
 
-          conn.disconnect()
           (content, contentType, headers)
-        } catch {
-          case e: Exception =>
-            conn.disconnect()
-            throw e
         }
       }.toResult match {
         case Left(err)    => Left(NetworkError(err.message, None, "http"))

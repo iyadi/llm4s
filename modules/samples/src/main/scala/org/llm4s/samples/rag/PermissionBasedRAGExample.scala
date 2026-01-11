@@ -4,6 +4,7 @@ import org.llm4s.rag.{ EmbeddingProvider, RAG }
 import org.llm4s.rag.RAG.RAGConfigOps
 import org.llm4s.rag.permissions._
 import org.llm4s.rag.permissions.pg.PgSearchIndex
+import org.llm4s.config.Llm4sConfig
 
 /**
  * Permission-Based RAG Example
@@ -131,9 +132,9 @@ object PermissionBasedRAGExample extends App {
   // ========== Part 3: Live Demo with PostgreSQL ==========
   println("\n--- Part 3: Live Demo with PostgreSQL ---")
 
-  val jdbcUrl    = sys.env.getOrElse("PGVECTOR_TEST_URL", "jdbc:postgresql://localhost:5432/postgres")
-  val pgUser     = sys.env.getOrElse("PGVECTOR_USER", "postgres")
-  val pgPassword = sys.env.getOrElse("PGVECTOR_PASSWORD", "postgres")
+  val jdbcUrl    = Llm4sConfig.stringOrElse("PGVECTOR_TEST_URL", "jdbc:postgresql://localhost:5432/postgres")
+  val pgUser     = Llm4sConfig.stringOrElse("PGVECTOR_USER", "postgres")
+  val pgPassword = Llm4sConfig.stringOrElse("PGVECTOR_PASSWORD", "postgres")
 
   println(s"PostgreSQL URL: $jdbcUrl")
 

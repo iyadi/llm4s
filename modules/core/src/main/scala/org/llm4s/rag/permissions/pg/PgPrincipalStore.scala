@@ -196,9 +196,6 @@ final class PgPrincipalStore(getConnection: () => Connection) extends PrincipalS
     }
   }.toEither.left.map(e => ProcessingError("pg-principal-count", e.getMessage))
 
-  private def withConnection[A](f: Connection => A): A = {
-    val conn = getConnection()
-    try f(conn)
-    finally conn.close()
-  }
+  private def withConnection[A](f: Connection => A): A =
+    Using.resource(getConnection())(f)
 }

@@ -489,9 +489,6 @@ final class PgCollectionStore(
       pattern.findAllMatchIn(json).map(m => m.group(1) -> m.group(2)).toMap
     }
 
-  private def withConnection[A](f: Connection => A): A = {
-    val conn = getConnection()
-    try f(conn)
-    finally conn.close()
-  }
+  private def withConnection[A](f: Connection => A): A =
+    Using.resource(getConnection())(f)
 }

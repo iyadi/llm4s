@@ -186,50 +186,55 @@ final class PgSearchIndex private (
     readableBy: Set[PrincipalId]
   ): Result[Int] = Try {
     withConnection { conn =>
-      conn.setAutoCommit(false)
-      try {
-        val sql = s"""
-          INSERT INTO $vectorTableName
-          (id, embedding, embedding_dim, content, metadata, collection_id, readable_by)
-          VALUES (?, ?::vector, ?, ?, ?::jsonb, ?, ?)
-          ON CONFLICT (id) DO UPDATE SET
-            embedding = EXCLUDED.embedding,
-            embedding_dim = EXCLUDED.embedding_dim,
-            content = EXCLUDED.content,
-            metadata = EXCLUDED.metadata,
-            collection_id = EXCLUDED.collection_id,
-            readable_by = EXCLUDED.readable_by
-        """
+      Using.resource(new AutoCloseable {
+        private val original = conn.getAutoCommit
+        conn.setAutoCommit(false)
+        override def close(): Unit = conn.setAutoCommit(original)
+      }) { _ =>
+        val attempt =
+          Try {
+            val sql = s"""
+              INSERT INTO $vectorTableName
+              (id, embedding, embedding_dim, content, metadata, collection_id, readable_by)
+              VALUES (?, ?::vector, ?, ?, ?::jsonb, ?, ?)
+              ON CONFLICT (id) DO UPDATE SET
+                embedding = EXCLUDED.embedding,
+                embedding_dim = EXCLUDED.embedding_dim,
+                content = EXCLUDED.content,
+                metadata = EXCLUDED.metadata,
+                collection_id = EXCLUDED.collection_id,
+                readable_by = EXCLUDED.readable_by
+            """
 
-        val readableByArray = createIntArray(conn, readableBy.map(_.value).toSeq)
+            val readableByArray = createIntArray(conn, readableBy.map(_.value).toSeq)
 
-        Using.resource(conn.prepareStatement(sql)) { stmt =>
-          chunks.foreach { chunk =>
-            // Include collectionId in chunk ID to prevent cross-collection overwrites
-            // when the same documentId is ingested into multiple collections
-            val chunkId = s"coll-$collectionId-$documentId-chunk-${chunk.chunkIndex}"
-            val chunkMetadata =
-              metadata ++ chunk.metadata + ("docId" -> documentId) + ("chunkIndex" -> chunk.chunkIndex.toString)
+            Using.resource(conn.prepareStatement(sql)) { stmt =>
+              chunks.foreach { chunk =>
+                // Include collectionId in chunk ID to prevent cross-collection overwrites
+                // when the same documentId is ingested into multiple collections
+                val chunkId = s"coll-$collectionId-$documentId-chunk-${chunk.chunkIndex}"
+                val chunkMetadata =
+                  metadata ++ chunk.metadata + ("docId" -> documentId) + ("chunkIndex" -> chunk.chunkIndex.toString)
 
-            stmt.setString(1, chunkId)
-            stmt.setString(2, embeddingToString(chunk.embedding))
-            stmt.setInt(3, chunk.dimensions)
-            stmt.setString(4, chunk.content)
-            stmt.setString(5, mapToJson(chunkMetadata))
-            stmt.setInt(6, collectionId)
-            stmt.setArray(7, readableByArray)
-            stmt.addBatch()
-          }
-          stmt.executeBatch()
-        }
+                stmt.setString(1, chunkId)
+                stmt.setString(2, embeddingToString(chunk.embedding))
+                stmt.setInt(3, chunk.dimensions)
+                stmt.setString(4, chunk.content)
+                stmt.setString(5, mapToJson(chunkMetadata))
+                stmt.setInt(6, collectionId)
+                stmt.setArray(7, readableByArray)
+                stmt.addBatch()
+              }
+              stmt.executeBatch()
+            }
 
-        conn.commit()
-        chunks.size
-      } catch {
-        case e: Exception =>
-          conn.rollback()
-          throw e
-      } finally conn.setAutoCommit(true)
+            chunks.size
+          }.flatMap(v => Try(conn.commit()).map(_ => v))
+
+        attempt.recoverWith { case e: Exception =>
+          Try(conn.rollback()).flatMap(_ => scala.util.Failure(e))
+        }.get
+      }
     }
   }.toEither.left.map(e => ProcessingError("pg-search-index-insert", e.getMessage))
 
@@ -380,11 +385,8 @@ final class PgSearchIndex private (
         .toMap
     }
 
-  private def withConnection[A](f: Connection => A): A = {
-    val conn = dataSource.getConnection
-    try f(conn)
-    finally conn.close()
-  }
+  private def withConnection[A](f: Connection => A): A =
+    Using.resource(dataSource.getConnection)(f)
 }
 
 object PgSearchIndex {

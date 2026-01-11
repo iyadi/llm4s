@@ -177,7 +177,9 @@ object RobotsTxtParser {
       conn.setReadTimeout(timeoutMs)
       conn.setRequestProperty("User-Agent", userAgent)
 
-      try {
+      Using.resource(new AutoCloseable {
+        override def close(): Unit = conn.disconnect()
+      }) { _ =>
         val code = conn.getResponseCode
         if (code == 200) {
           val content = Using.resource(Source.fromInputStream(conn.getInputStream, "UTF-8")) {
@@ -188,7 +190,7 @@ object RobotsTxtParser {
           // No robots.txt or error - allow all
           Seq.empty
         }
-      } finally conn.disconnect()
+      }
     }.getOrElse(Seq.empty)
 
   private def parseUrl(url: String): Option[ParsedUrl] =

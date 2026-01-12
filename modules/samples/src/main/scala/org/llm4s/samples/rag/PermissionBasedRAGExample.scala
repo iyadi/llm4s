@@ -31,7 +31,11 @@ import org.llm4s.config.Llm4sConfig
  *
  *   # Run the example
  *   export OPENAI_API_KEY=sk-...
- *   export PGVECTOR_TEST_URL=jdbc:postgresql://localhost:5432/postgres
+ *   export PGVECTOR_HOST=localhost
+ *   export PGVECTOR_PORT=5432
+ *   export PGVECTOR_DATABASE=postgres
+ *   export PGVECTOR_USER=postgres
+ *   export PGVECTOR_PASSWORD=postgres
  *   sbt "samples/runMain org.llm4s.samples.rag.PermissionBasedRAGExample"
  */
 object PermissionBasedRAGExample extends App {
@@ -132,141 +136,146 @@ object PermissionBasedRAGExample extends App {
   // ========== Part 3: Live Demo with PostgreSQL ==========
   println("\n--- Part 3: Live Demo with PostgreSQL ---")
 
-  val jdbcUrl    = Llm4sConfig.stringOrElse("PGVECTOR_TEST_URL", "jdbc:postgresql://localhost:5432/postgres")
-  val pgUser     = Llm4sConfig.stringOrElse("PGVECTOR_USER", "postgres")
-  val pgPassword = Llm4sConfig.stringOrElse("PGVECTOR_PASSWORD", "postgres")
+  val pgConfigResult = Llm4sConfig.pgSearchIndex()
 
-  println(s"PostgreSQL URL: $jdbcUrl")
-
-  // Try to create a SearchIndex
-  val searchIndexResult = PgSearchIndex.fromJdbcUrl(
-    jdbcUrl = jdbcUrl,
-    user = pgUser,
-    password = pgPassword,
-    vectorTableName = "permission_demo_vectors"
-  )
-
-  searchIndexResult match {
+  pgConfigResult match {
     case Left(error) =>
-      println(s"\nCould not connect to PostgreSQL: ${error.message}")
-      println("To run the live demo, start PostgreSQL with pgvector:")
-      println("  docker run -d --name pgvector -p 5432:5432 \\")
-      println("    -e POSTGRES_PASSWORD=postgres \\")
-      println("    pgvector/pgvector:pg16")
+      println(s"\nCould not load PostgreSQL config: ${error.message}")
+      println("To run the live demo, set env vars like:")
+      println("  export PGVECTOR_HOST=localhost")
+      println("  export PGVECTOR_PORT=5432")
+      println("  export PGVECTOR_DATABASE=postgres")
+      println("  export PGVECTOR_USER=postgres")
+      println("  export PGVECTOR_PASSWORD=postgres")
       println("\nSkipping live demo...")
 
-    case Right(searchIndex) =>
-      println("Connected to PostgreSQL!")
+    case Right(pgConfig) =>
+      val config = pgConfig.copy(vectorTableName = "permission_demo_vectors")
+      println(s"PostgreSQL URL: ${config.jdbcUrl}")
 
-      // Initialize schema
-      searchIndex.initializeSchema() match {
+      // Try to create a SearchIndex
+      PgSearchIndex(config) match {
         case Left(error) =>
-          println(s"Schema initialization failed: ${error.message}")
+          println(s"\nCould not connect to PostgreSQL: ${error.message}")
+          println("To run the live demo, start PostgreSQL with pgvector:")
+          println("  docker run -d --name pgvector -p 5432:5432 \\")
+          println("    -e POSTGRES_PASSWORD=postgres \\")
+          println("    pgvector/pgvector:pg16")
+          println("\nSkipping live demo...")
 
-        case Right(_) =>
-          println("Schema initialized.")
+        case Right(searchIndex) =>
+          println("Connected to PostgreSQL!")
 
-          // Create collections
-          val collections = searchIndex.collections
-          val principals  = searchIndex.principals
-
-          println("\nCreating users and groups...")
-
-          // Create principals
-          val johnResult        = principals.getOrCreate(ExternalPrincipal.User("john@example.com"))
-          val janeResult        = principals.getOrCreate(ExternalPrincipal.User("jane@example.com"))
-          val engineeringResult = principals.getOrCreate(ExternalPrincipal.Group("engineering"))
-          val hrResult          = principals.getOrCreate(ExternalPrincipal.Group("hr"))
-
-          (for {
-            john        <- johnResult
-            jane        <- janeResult
-            engineering <- engineeringResult
-            hr          <- hrResult
-          } yield {
-            println(s"  john@example.com -> ${john.value}")
-            println(s"  jane@example.com -> ${jane.value}")
-            println(s"  engineering group -> ${engineering.value}")
-            println(s"  hr group -> ${hr.value}")
-
-            println("\nCreating collections...")
-
-            // Create collection hierarchy
-            val publicConfig = CollectionConfig(
-              path = CollectionPath.unsafe("public"),
-              queryableBy = Set.empty, // Empty = public
-              isLeaf = true
-            )
-            val engineeringConfig = CollectionConfig(
-              path = CollectionPath.unsafe("engineering"),
-              queryableBy = Set(engineering),
-              isLeaf = true
-            )
-            val hrConfig = CollectionConfig(
-              path = CollectionPath.unsafe("hr"),
-              queryableBy = Set(hr),
-              isLeaf = true
-            )
-
-            collections.create(publicConfig).foreach(_ => println("  Created 'public' (accessible to all)"))
-            collections
-              .create(engineeringConfig)
-              .foreach(_ => println("  Created 'engineering' (engineering group only)"))
-            collections.create(hrConfig).foreach(_ => println("  Created 'hr' (HR group only)"))
-
-            // Demo permission filtering
-            println("\nPermission filtering demo:")
-
-            val johnAuth = UserAuthorization.forUser(john, Set(engineering))
-            val janeAuth = UserAuthorization.forUser(jane, Set(hr))
-
-            println(s"\n  John (engineering): principals = ${johnAuth.asSeq.sorted}")
-            collections.findAccessible(johnAuth, CollectionPattern.All).foreach { accessible =>
-              println(s"    Can access: ${accessible.map(_.path.value).mkString(", ")}")
-            }
-
-            println(s"\n  Jane (HR): principals = ${janeAuth.asSeq.sorted}")
-            collections.findAccessible(janeAuth, CollectionPattern.All).foreach { accessible =>
-              println(s"    Can access: ${accessible.map(_.path.value).mkString(", ")}")
-            }
-
-            println(s"\n  Admin: bypasses all checks")
-            collections.findAccessible(UserAuthorization.Admin, CollectionPattern.All).foreach { accessible =>
-              println(s"    Can access: ${accessible.map(_.path.value).mkString(", ")}")
-            }
-
-          }) match {
+          // Initialize schema
+          searchIndex.initializeSchema() match {
             case Left(error) =>
-              println(s"Error during demo: ${error.message}")
+              println(s"Schema initialization failed: ${error.message}")
+
             case Right(_) =>
-              println("\nDemo completed successfully!")
+              println("Schema initialized.")
+
+              // Create collections
+              val collections = searchIndex.collections
+              val principals  = searchIndex.principals
+
+              println("\nCreating users and groups...")
+
+              // Create principals
+              val johnResult        = principals.getOrCreate(ExternalPrincipal.User("john@example.com"))
+              val janeResult        = principals.getOrCreate(ExternalPrincipal.User("jane@example.com"))
+              val engineeringResult = principals.getOrCreate(ExternalPrincipal.Group("engineering"))
+              val hrResult          = principals.getOrCreate(ExternalPrincipal.Group("hr"))
+
+              (for {
+                john        <- johnResult
+                jane        <- janeResult
+                engineering <- engineeringResult
+                hr          <- hrResult
+              } yield {
+                println(s"  john@example.com -> ${john.value}")
+                println(s"  jane@example.com -> ${jane.value}")
+                println(s"  engineering group -> ${engineering.value}")
+                println(s"  hr group -> ${hr.value}")
+
+                println("\nCreating collections...")
+
+                // Create collection hierarchy
+                val publicConfig = CollectionConfig(
+                  path = CollectionPath.unsafe("public"),
+                  queryableBy = Set.empty, // Empty = public
+                  isLeaf = true
+                )
+                val engineeringConfig = CollectionConfig(
+                  path = CollectionPath.unsafe("engineering"),
+                  queryableBy = Set(engineering),
+                  isLeaf = true
+                )
+                val hrConfig = CollectionConfig(
+                  path = CollectionPath.unsafe("hr"),
+                  queryableBy = Set(hr),
+                  isLeaf = true
+                )
+
+                collections.create(publicConfig).foreach(_ => println("  Created 'public' (accessible to all)"))
+                collections
+                  .create(engineeringConfig)
+                  .foreach(_ => println("  Created 'engineering' (engineering group only)"))
+                collections.create(hrConfig).foreach(_ => println("  Created 'hr' (HR group only)"))
+
+                // Demo permission filtering
+                println("\nPermission filtering demo:")
+
+                val johnAuth = UserAuthorization.forUser(john, Set(engineering))
+                val janeAuth = UserAuthorization.forUser(jane, Set(hr))
+
+                println(s"\n  John (engineering): principals = ${johnAuth.asSeq.sorted}")
+                collections.findAccessible(johnAuth, CollectionPattern.All).foreach { accessible =>
+                  println(s"    Can access: ${accessible.map(_.path.value).mkString(", ")}")
+                }
+
+                println(s"\n  Jane (HR): principals = ${janeAuth.asSeq.sorted}")
+                collections.findAccessible(janeAuth, CollectionPattern.All).foreach { accessible =>
+                  println(s"    Can access: ${accessible.map(_.path.value).mkString(", ")}")
+                }
+
+                println(s"\n  Admin: bypasses all checks")
+                collections.findAccessible(UserAuthorization.Admin, CollectionPattern.All).foreach { accessible =>
+                  println(s"    Can access: ${accessible.map(_.path.value).mkString(", ")}")
+                }
+
+              }) match {
+                case Left(error) =>
+                  println(s"Error during demo: ${error.message}")
+                case Right(_) =>
+                  println("\nDemo completed successfully!")
+              }
+
+              // Build RAG with SearchIndex
+              println("\n--- Building RAG with Permission Support ---")
+
+              val ragResult = for {
+                rag <- RAG
+                  .builder()
+                  .withEmbeddings(EmbeddingProvider.OpenAI)
+                  .withSearchIndex(searchIndex)
+                  .withTopK(5)
+                  .build()
+              } yield rag
+
+              ragResult match {
+                case Left(error) =>
+                  println(s"Could not build RAG: ${error.message}")
+                  println("Make sure OPENAI_API_KEY is set for embeddings.")
+
+                case Right(rag) =>
+                  println(s"RAG built with permission support!")
+                  println(s"  Has permissions: ${rag.hasPermissions}")
+                  rag.close()
+              }
           }
 
-          // Build RAG with SearchIndex
-          println("\n--- Building RAG with Permission Support ---")
-
-          val ragResult = for {
-            rag <- RAG
-              .builder()
-              .withEmbeddings(EmbeddingProvider.OpenAI)
-              .withSearchIndex(searchIndex)
-              .withTopK(5)
-              .build()
-          } yield rag
-
-          ragResult match {
-            case Left(error) =>
-              println(s"Could not build RAG: ${error.message}")
-              println("Make sure OPENAI_API_KEY is set for embeddings.")
-
-            case Right(rag) =>
-              println(s"RAG built with permission support!")
-              println(s"  Has permissions: ${rag.hasPermissions}")
-              rag.close()
-          }
+          searchIndex.close()
       }
-
-      searchIndex.close()
   }
 
   // ========== Part 4: Two-Level Permission Model ==========

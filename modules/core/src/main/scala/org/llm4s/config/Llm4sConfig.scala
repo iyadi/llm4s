@@ -1,4 +1,3 @@
-// scalafix:off DisableSyntax.NoPureConfigDefault
 package org.llm4s.config
 
 import org.llm4s.llmconnect.config._
@@ -7,11 +6,11 @@ import pureconfig.ConfigSource
 
 object Llm4sConfig {
 
-  def stringOrElse(path: String, default: String): String =
-    ConfigSource.default.at(path).load[String].toOption.getOrElse(default)
-
   def provider(): Result[ProviderConfig] =
     org.llm4s.config.ProviderConfigLoader.load(ConfigSource.default)
+
+  def pgSearchIndex(): Result[org.llm4s.rag.permissions.SearchIndex.PgConfig] =
+    org.llm4s.config.PgSearchIndexConfigLoader.load(ConfigSource.default)
 
   final private case class LangfuseSection(
     url: Option[String],
@@ -145,4 +144,3 @@ object Llm4sConfig {
     fromConf
   }
 }
-// scalafix:on DisableSyntax.NoPureConfigDefault

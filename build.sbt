@@ -54,7 +54,7 @@ inThisBuild(
     ThisBuild / (coverageReport / aggregate) := false,
     // --- scalafix ---
     ThisBuild / scalafixDependencies += "ch.epfl.scala" %% "scalafix-rules" % "0.12.1",
-    ThisBuild / scalafixOnCompile := true
+    ThisBuild / scalafixOnCompile := false // Disabled by default; run manually via scalafixAll
   )
 )
 
